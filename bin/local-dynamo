@@ -1,0 +1,3 @@
+#!/bin/sh
+nohup java -jar ~/bin/local-dynamodb/local-dynamo-db-server.jar -dbPath ~/bin/local-dynamodb -sharedDb &
+
