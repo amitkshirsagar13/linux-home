@@ -1,0 +1,4 @@
+* * * * * ~/bin/zdocker >> /dev/null 2>&1
+* * * * * ~/bin/zk8s >> /dev/null 2>&1
+* * * * * ~/bin/wifi >> /dev/null 2>&1
+* * * * * ~/bin/zk8s >> /dev/null 2>&1
