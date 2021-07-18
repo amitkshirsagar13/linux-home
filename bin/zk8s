@@ -1,0 +1,5 @@
+#!/bin/sh
+pod=0
+service=0
+echo POD 0 > ~/.zk8s
+echo SER 0 >> ~/.zk8s
