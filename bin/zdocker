@@ -1,0 +1,5 @@
+#!/bin/sh
+dockerc=0
+dockert=4
+echo CDC 0 > ~/.zdocker
+echo TDC 0 >> ~/.zdocker
