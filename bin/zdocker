@@ -1,6 +1,5 @@
 #!/bin/sh
-echo "Started Docker"
 dockerc=$(docker ps|grep -v IMAGE|wc -l)
 dockert=$(docker ps -a|grep -v IMAGE|wc -l)
-echo `echo CDC $((dockerc))` > ~/.zdocker
-echo `echo TDC $((dockert))` >> ~/.zdocker
+echo CDC $((dockerc)) > ~/.zdocker
+echo TDC $((dockert)) >> ~/.zdocker
