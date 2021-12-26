@@ -1,6 +1,5 @@
 #!/bin/sh
-echo "Staarted k8s"
-pod=$(kubectl get pods --all-namespaces|grep -v kube-system|grep -v AGE|wc -l)
-service=$(kubectl get svc --all-namespaces|grep -v kube-system|grep -v AGE|wc -l)
-echo `echo POD $((pod))` > ~/.zk8s
-echo `echo SER $((service))` >> ~/.zk8s
+pod=$(kubectl get pods --all-namespaces|grep -v AGE|wc -l)
+service=$(kubectl get svc --all-namespaces|grep -v AGE|wc -l)
+echo POD $((pod)) > ~/.zk8s
+echo SER  $((service))>> ~/.zk8s
