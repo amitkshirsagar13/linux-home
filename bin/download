@@ -38,7 +38,7 @@ echo "$storage $url $start $end"
 while [ $start -lt $end ]
 do
     downloadUrl="${url//XINDEX/$start}"
-    wget -q $downloadUrl -P $storage >> $storage.log
+    wget -q $downloadUrl -P $storage >> $storage/$storage.log
     sleep 0.2
     true $(( start++ ))
     ProgressBar $start $end
