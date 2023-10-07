@@ -1,2 +1,2 @@
 #!/bin/sh
-echo $(nmcli device wifi | grep amogh | awk '{print $8}') > ~/.wifi
+echo $(nmcli device wifi | grep amogh | awk '{print $7}') > ~/.wifi

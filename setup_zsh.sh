@@ -25,12 +25,6 @@ chmod 755 ~/bin/zdocker
 chmod 755 ~/bin/zk8s
 chmod 755 ~/bin/wifi
 
-chsh -s /usr/bin/zsh poomit
-
-git clone https://github.com/bhilburn/powerlevel9k.git ~/.oh-my-zsh/custom/themes/powerlevel9k
-cp .zshrc ~/
-
-
 echo `
 * * * * * ~/bin/zdocker >> /dev/null 2>&1
 * * * * * ~/bin/zk8s >> /dev/null 2>&1
