@@ -1,5 +1,5 @@
 #!/bin/sh
-pod=$(/snap/bin/microk8s.kubectl get pods --all-namespaces|grep -v AGE|wc -l)
-service=$(/snap/bin/microk8s.kubectl get svc --all-namespaces|grep -v AGE|wc -l)
+pod=$(kubectl get pods --all-namespaces|grep -v AGE|wc -l)
+service=$(kubectl get svc --all-namespaces|grep -v AGE|wc -l)
 echo `echo POD $((pod))` > ~/.zk8s
 echo `echo SER $((service))` >> ~/.zk8s
