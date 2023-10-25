@@ -5,3 +5,9 @@
 # Run below command:
 download https://szcdn1.ragalahari.com/may2013/posters/rajakota-rahasyam-heroine-poojachopra/rajakota-rahasyam-heroine-poojachopra 136 pooja-chopra
 ```
+### vscode settings terminal font
+```json
+{
+    "terminal.integrated.fontFamily": "MesloLGS NF, Regular"
+}
+```
