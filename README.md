@@ -11,3 +11,8 @@ download https://szcdn1.ragalahari.com/may2013/posters/rajakota-rahasyam-heroine
     "terminal.integrated.fontFamily": "MesloLGS NF, Regular"
 }
 ```
+
+### macos theme
+```bash
+./install.sh -m -t all -l -c Dark -N stable --normal
+```
