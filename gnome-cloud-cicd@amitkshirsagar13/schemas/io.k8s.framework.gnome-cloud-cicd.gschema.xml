@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.k8s.framework.gnome-cloud-cicd" path="/io/k8s/framework/gnome-cloud-cicd/">
+    <key name="refresh-delay" type="i">
+      <default>2</default>
+    </key>
+  </schema>
+</schemalist>

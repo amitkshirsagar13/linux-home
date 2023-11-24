@@ -1,0 +1,85 @@
+#              ################
+#              # - weather: - #
+#              ################
+#       (created 11-24-2023 by Amit Kshirsagar)
+#(For questions and suggestions -> amit.kshirsagar.13@gmail.com)
+#
+######################
+# - Conky settings - #
+######################
+background yes
+update_interval 300
+ 
+cpu_avg_samples 1
+net_avg_samples 1
+ 
+override_utf8_locale yes
+ 
+double_buffer yes
+no_buffers yes
+ 
+text_buffer_size 10240
+imlib_cache_size 0
+#####################
+# - Text settings - #
+#####################
+use_xft yes
+xftfont Santana:size=10
+xftalpha 0.8
+ 
+uppercase no
+
+#############################
+# - Window specifications - #
+#############################
+own_window_class Conky
+own_window yes
+own_window_type normal
+own_window_argb_visual yes
+own_window_argb_value 180
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+
+border_inner_margin 0
+border_outer_margin 0
+
+alignment top_left
+gap_x 400
+gap_y 60
+minimum_size 900 300
+#maximum_width 182
+
+default_bar_size 60 8
+
+#########################
+# - Graphics settings - #
+#########################
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+
+default_color FFFFFF
+
+
+############
+# - Code - #
+############
+TEXT
+${voffset 0}${goto 280}${hr 2}
+${image ~/.conky/gnome-conky/images/accuImage/day/day.png -p 220,0}${image ~/.conky/gnome-conky/images/accuImage/moonPhases/now.png -p 550,10}${image ~/.conky/gnome-conky/images/accuImage/night/night.png -p 700,0}
+${voffset -24}${goto 480}${font Santana:style=Bold:size=12}MoonPhase:       ${execi 300 grep "Heading" ~/.conky/gnome-conky/images/accuImage/MoonPhase.txt|cut -d ":" -f 2}
+${goto 480}${font Santana:style=Bold:size=10}UV: ${execi 300 grep "DayDetails UV" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}${goto 550}Temp:${execi 300 grep "DayDetails Temp" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2} °C
+${goto 480}${font Santana:style=Bold:size=10}Humidity: ${execi 300 grep "DayDetails Humi" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}${goto 550}Feels:${execi 300 grep "DayDetails Feel" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2} °C
+${goto 480}${font Santana:style=Bold:size=10}Visibility: ${execi 300 grep "DayDetails Visi" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}${goto 550}Condition:${execi 300 grep "DayDetails Cond" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}
+${goto 480}${font Santana:style=Bold:size=10}Pressure: ${execi 300 grep "DayDetails Press" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}${goto 550}Cloud Cover:${execi 300 grep "DayDetails Cloud" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}
+${goto 480}${font Santana:style=Bold:size=10}Dew Point:${execi 300 grep "DayDetails Dew" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}${goto 550}Precipitation: ${execi 300 grep "DayDetails Presp" ~/.conky/gnome-conky/images/accuImage/DayDetails.txt|cut -d ":" -f 2}
+${voffset -25}${font Santana:style=Bold:size=13}${goto 300}Today: ${execi 300 grep "Day Cond" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2}${goto 700}Tonight: ${execi 300 grep "Night Cond" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2}
+${voffset 5}${goto 300}${font Santana:style=Bold:size=10}Temp: ${execi 300 grep "Day Temp" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2} °C    Feels: ${execi 300 grep "Day Feel" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2} °C${goto 700}Temp: ${execi 300 grep "Night Temp" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2} °C    Feels: ${execi 300 grep "Night Feel" ~/.conky/gnome-conky/images/accuImage/toDay.txt|cut -d ":" -f 2} °C
+${voffset 0}${goto 280}${hr 2}
+${font Santana:style=Bold:size=12}${goto 300}${execi 300 grep "DayOfWeek" ~/.conky/gnome-conky/images/accuImage/2.txt|cut -d ":" -f 2}${goto 470}${execi 300 grep "DayOfWeek" ~/.conky/gnome-conky/images/accuImage/3.txt|cut -d ":" -f 2}${goto 640}${execi 300 grep "DayOfWeek" ~/.conky/gnome-conky/images/accuImage/4.txt|cut -d ":" -f 2}${goto 810}${execi 300 grep "DayOfWeek" ~/.conky/gnome-conky/images/accuImage/5.txt|cut -d ":" -f 2}
+${image ~/.conky/gnome-conky/images/accuImage/day/2.png -p 230,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/3.png -p 400,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/4.png -p 570,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/5.png -p 740,175 -s 120x72}
+${font Santana:style=Bold:size=12}${goto 300}${execi 300 grep "Day Wind" ~/.conky/gnome-conky/images/accuImage/2.txt|cut -d ":" -f 2}${goto 470}${execi 300 grep "Day Wind" ~/.conky/gnome-conky/images/accuImage/3.txt|cut -d ":" -f 2}${goto 630}${execi 300 grep "Day Wind" ~/.conky/gnome-conky/images/accuImage/4.txt|cut -d ":" -f 2}${goto 800}${execi 300 grep "Day Wind" ~/.conky/gnome-conky/images/accuImage/5.txt|cut -d ":" -f 2}
+${voffset 20}${font Santana:style=Bold:size=12}${goto 300}${execi 300 grep "Day Cond" ~/.conky/gnome-conky/images/accuImage/2.txt|cut -d ":" -f 2}${goto 425}${execi 300 grep "Day Cond" ~/.conky/gnome-conky/images/accuImage/3.txt|cut -d ":" -f 2}${goto 595}${execi 300 grep "Day Cond" ~/.conky/gnome-conky/images/accuImage/4.txt|cut -d ":" -f 2}${goto 765}${execi 300 grep "Day Cond" ~/.conky/gnome-conky/images/accuImage/5.txt|cut -d ":" -f 2}
+${voffset 5}${goto 350}${font Santana:style=Bold:size=10}${execi 300 grep "Day Temp" ~/.conky/gnome-conky/images/accuImage/2.txt|cut -d ":" -f 2} °C/${font Santana:size=9}${execi 300 grep "Night Temp" ~/.conky/gnome-conky/images/accuImage/2.txt|cut -d ":" -f 2} °C${goto 500}${font Santana:style=Bold:size=10}${execi 300 grep "Day Temp" ~/.conky/gnome-conky/images/accuImage/3.txt|cut -d ":" -f 2} °C/${font Santana:size=9}${execi 300 grep "Night Temp" ~/.conky/gnome-conky/images/accuImage/3.txt|cut -d ":" -f 2} °C${goto 650}${font Santana:style=Bold:size=10}${execi 300 grep "Day Temp" ~/.conky/gnome-conky/images/accuImage/4.txt|cut -d ":" -f 2} °C/${font Santana:size=9}${execi 300 grep "Night Temp" ~/.conky/gnome-conky/images/accuImage/4.txt|cut -d ":" -f 2} °C${goto 800}${font Santana:style=Bold:size=10}${execi 300 grep "Day Temp" ~/.conky/gnome-conky/images/accuImage/5.txt|cut -d ":" -f 2} °C/${font Santana:size=9}${execi 300 grep "Night Temp" ~/.conky/gnome-conky/images/accuImage/5.txt|cut -d ":" -f 2} °C
+${voffset 0}${goto 280}${hr 2}

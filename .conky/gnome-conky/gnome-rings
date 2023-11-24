@@ -1,0 +1,91 @@
+#                 ##############
+#                 # - rings: - #
+#                 ##############
+#       (created 11-24-2023 by Amit Kshirsagar)
+#(For questions and suggestions -> amit.kshirsagar.13@gmail.com)
+#
+######################
+# - Conky settings - #
+######################
+background no
+update_interval 1
+ 
+cpu_avg_samples 1
+net_avg_samples 1
+ 
+override_utf8_locale yes
+ 
+double_buffer yes
+no_buffers yes
+ 
+text_buffer_size 10240
+imlib_cache_size 0
+ 
+#############################
+# - Window specifications - #
+#############################
+own_window_class Conky
+own_window yes
+own_window_type normal
+own_window_argb_visual yes
+own_window_argb_value 180
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+ 
+ 
+border_inner_margin 0
+border_outer_margin 0
+ 
+minimum_size 1024 300
+maximum_width 1440
+ 
+alignment tl
+gap_x 0
+gap_y 79
+ 
+#########################
+# - Graphics settings - #
+#########################
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+ 
+#####################
+# - Text settings - #
+#####################
+use_xft yes
+xftfont Santana:size=18
+xftalpha 0.8
+ 
+uppercase no
+ 
+default_color FFFFFF
+ 
+################
+# - LUA Load - #
+################
+lua_load ~/.conky/gnome-conky/gnome-rings.lua
+lua_draw_hook_pre clock_rings
+
+############
+# - Code - #
+############
+TEXT
+   # ${font Santana:size=12:style=Bold}root:   ${font Santana:size=12}${fs_used /}/${fs_size /}  ${color green}${fs_bar 8,60 /}    ${color white}${font Santana:size=12:style=Bold}home:   ${font Santana:size=12}${fs_used /home}/${fs_size /home}  ${color green}${fs_bar 8,60 /home}    ${upspeed wlan0}${color white}
+${voffset 105}${goto 123}${font Santana:size=24:style=Bold}${time %H:%M}${voffset -9}${font Santana:style=Bold:size=12}${time %p}${font}
+${voffset -98}${font Santana:size 12:style=Bold}${goto 250}${cpu cpu0}%${goto 280}${cpu cpu1}%${goto 312}${cpu cpu2}%${goto 345}${cpu cpu3}%${goto 380}${cpu cpu4}%${goto 410}${cpu cpu5}%${goto 440}${cpu cpu6}%${goto 470}${cpu cpu7}%${goto 500}${cpu cpu8}%${goto 530}${cpu cpu9}%${goto 560}${cpu cpu10}%${goto 590}${cpu cpu11}%${font}
+# ${voffset -25}${goto 224}${hr 2} # topbar
+${voffset 45}${goto 224}${hr 2} # middle
+# ${voffset 70}${goto 224}${hr 2} # bottom
+${voffset -43}${goto 278}${cpugraph 50,333 00ff00 ff0000 0.5 -t}
+${voffset -30}${alignr}${font Santana:style=Bold:size=13}${goto 300}${time %A the %d. %B %Y}	
+
+${image ~/.conky/gnome-conky/images/hdd.png -p 30,120}
+${image ~/.conky/gnome-conky/images/windows-hdd.png -p 220,50}
+${image ~/.conky/gnome-conky/images/gnome-power-manager.png -p 90,250}
+${image ~/.conky/gnome-conky/images/utilities-system-monitor.png -p 65,140}
+${image ~/.conky/gnome-conky/images/media-flash.png -p 195,210}
+${image ~/.conky/gnome-conky/images/nm-75.png -p 190,70}
+# ${image ~/.conky/gnome-conky/images/ubuntustudio.png -p 108,103}
+

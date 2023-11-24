@@ -1,0 +1,95 @@
+#                 ############
+#                 # - mem: - #
+#                 ############
+#       (created 11-24-2023 by Amit Kshirsagar)
+#(For questions and suggestions -> amit.kshirsagar.13@gmail.com)
+#######################
+# - Conky settings - #
+######################
+background no
+update_interval 5
+ 
+cpu_avg_samples 2
+net_avg_samples 2
+ 
+override_utf8_locale yes
+ 
+double_buffer yes
+no_buffers yes
+ 
+text_buffer_size 10240
+imlib_cache_size 0
+ 
+#############################
+# - Window specifications - #
+#############################
+own_window_class Conky
+own_window yes
+own_window_type normal
+own_window_argb_visual yes
+own_window_argb_value 180
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+ 
+ 
+border_inner_margin 0
+border_outer_margin 0
+ 
+minimum_size 180 100
+maximum_width 180
+ 
+alignment tl
+gap_x 80
+gap_y 350
+
+#########################
+# - Graphics settings - #
+#########################
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+ 
+#####################
+# - Text settings - #
+#####################
+use_xft yes
+xftfont Santana:size=10
+xftalpha 0.8
+ 
+uppercase no
+ 
+default_color FFFFFF
+
+################
+# - LUA Load - #
+################
+#####
+## Load Lua for shading (optional)
+## Set the path to your script here.
+#
+lua_load ~/.conky/gnome-conky/draw_bg.lua
+lua_draw_hook_pre draw_bg
+
+####
+## Load Lua for bargraphs (required)
+## Set the path to your script here.
+#
+lua_load ~/.conky/gnome-conky/bargraph_small.lua
+lua_draw_hook_post main_bars
+
+
+############
+# - Code - #
+############
+TEXT
+${font Santana:size 12:style=Bold}CPUX Temp: ${alignr}${exec sensors | grep 'Tctl' | awk '{print $2}'}${font}
+${font Santana:size 12:style=Bold}ACPI Temp: ${alignr}${exec sensors | grep 'temp1' | awk '{print $2}'}${font}
+${font Santana:size 12:style=Bold}GPU Temp1: ${alignr}${exec sensors | grep 'edge' | awk '{print $2}'}${font}
+${font Santana:size 12:style=Bold}GPU  Load: ${color red}${execibar 1 nvidia-smi |grep Default| awk '{print $13}'|sed 's/[^0-9]*//g'}${font}${color}
+${font Santana:size 12:style=Bold}Sound Vol: ${color blue}${execibar 1 amixer get Master|grep Right| grep '\['|awk '{print $5}'|sed 's/[^0-9]*//g'}${color}
+${font Santana:size 12:style=Bold}NVME1 Temp: ${alignr}${exec sensors | grep 'nvme-pci-0500' -A3 |grep 'Composite'| awk '{print $2}'}${font}
+${font Santana:size 12:style=Bold}NVME2 Temp: ${alignr}${exec sensors | grep 'nvme-pci-0600' -A3 |grep 'Composite'| awk '{print $2}'}${font}
+#${voffset 6}${font DroidSans:bold:size=8}${color4}PROCESSORS${offset 8}#${color8}${voffset -2}${hr 2}${font}
+#${voffset 4}${font StyleBats:size=9.9}${color2}k${voffset -2}${font DroidSansFallback:size=8.39}${color3}${offset 2}CPU1${offset 5}${font DroidSans:size=8.3}${cpu cpu1}%${font}
+#${voffset 2}${font StyleBats:size=9.9}${color2}k${voffset -2}${font DroidSansFallback:size=8.39}${color3}${offset 2}CPU2${offset 5}${font DroidSans:size=8.3}${cpu cpu2}%${font}
