@@ -71,8 +71,8 @@ settings_table = {
 	},
 	{
 		name='downspeedf',
-		arg='wlan0',
-		max=800,
+		arg='wlo1',
+		max=1600,
 		bg_colour=0xff00ff,
 		bg_alpha=0.2,
 		fg_colour=0xffFF00,

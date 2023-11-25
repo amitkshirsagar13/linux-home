@@ -90,6 +90,3 @@ ${font Santana:size 12:style=Bold}GPU  Load: ${color red}${execibar 1 nvidia-smi
 ${font Santana:size 12:style=Bold}Sound Vol: ${color blue}${execibar 1 amixer get Master|grep Right| grep '\['|awk '{print $5}'|sed 's/[^0-9]*//g'}${color}
 ${font Santana:size 12:style=Bold}NVME1 Temp: ${alignr}${exec sensors | grep 'nvme-pci-0500' -A3 |grep 'Composite'| awk '{print $2}'}${font}
 ${font Santana:size 12:style=Bold}NVME2 Temp: ${alignr}${exec sensors | grep 'nvme-pci-0600' -A3 |grep 'Composite'| awk '{print $2}'}${font}
-#${voffset 6}${font DroidSans:bold:size=8}${color4}PROCESSORS${offset 8}#${color8}${voffset -2}${hr 2}${font}
-#${voffset 4}${font StyleBats:size=9.9}${color2}k${voffset -2}${font DroidSansFallback:size=8.39}${color3}${offset 2}CPU1${offset 5}${font DroidSans:size=8.3}${cpu cpu1}%${font}
-#${voffset 2}${font StyleBats:size=9.9}${color2}k${voffset -2}${font DroidSansFallback:size=8.39}${color3}${offset 2}CPU2${offset 5}${font DroidSans:size=8.3}${cpu cpu2}%${font}
