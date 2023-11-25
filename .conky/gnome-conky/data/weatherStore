@@ -1,0 +1,54 @@
+current:
+  name: null
+  icon: "1.svg"
+  temperature: "50"
+  tempFeels: "53"
+  uvIndex: "1 Low"
+  humidity: "56%"
+  visibility: "10 mi"
+  condition: "Sunny"
+  cloudCover: "4%"
+  cloudCeiling: "20000 ft"
+  pressure: "↓ 30.17 in"
+  dewPoint: "35° F"
+  wind: "ENE 2 mph"
+  windGusts: "4 mph"
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+day:
+  name: null
+  icon: "3.svg"
+  temperature: "50"
+  tempFeels: "55"
+  uvIndex: "3 Moderate"
+  humidity: null
+  visibility: null
+  condition: "Partly sunny"
+  cloudCover: "20%"
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "ENE 5 mph"
+  windGusts: "10 mph"
+  precipitation: "0.00 in"
+  precipitationProbability: "0%"
+  thunderstormProbability: "0%"
+night:
+  name: null
+  icon: "36.svg"
+  temperature: "36"
+  tempFeels: "34"
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Partly cloudy"
+  cloudCover: "68%"
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "SE 5 mph"
+  windGusts: "8 mph"
+  precipitation: "0.00 in"
+  precipitationProbability: "10%"
+  thunderstormProbability: "0%"
