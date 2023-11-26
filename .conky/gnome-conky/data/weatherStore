@@ -1,54 +1,161 @@
 current:
   name: null
-  icon: "1.svg"
-  temperature: "50"
-  tempFeels: "53"
-  uvIndex: "1 Low"
-  humidity: "56%"
+  icon: "38.svg"
+  temperature: "42"
+  tempHigh: null
+  tempLow: null
+  tempFeels: "45"
+  uvIndex: "0"
+  humidity: "31%"
   visibility: "10 mi"
-  condition: "Sunny"
-  cloudCover: "4%"
-  cloudCeiling: "20000 ft"
-  pressure: "↓ 30.17 in"
-  dewPoint: "35° F"
-  wind: "ENE 2 mph"
-  windGusts: "4 mph"
+  condition: "Mostly cloudy"
+  cloudCover: "76%"
+  cloudCeiling: "20900 ft"
+  pressure: "↓ 30.09 in"
+  dewPoint: "36° F"
+  wind: "0"
+  windGusts: "80%"
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
 day:
   name: null
-  icon: "3.svg"
-  temperature: "50"
-  tempFeels: "55"
-  uvIndex: "3 Moderate"
-  humidity: null
-  visibility: null
-  condition: "Partly sunny"
-  cloudCover: "20%"
-  cloudCeiling: null
-  pressure: null
-  dewPoint: null
-  wind: "ENE 5 mph"
-  windGusts: "10 mph"
-  precipitation: "0.00 in"
-  precipitationProbability: "0%"
-  thunderstormProbability: "0%"
-night:
-  name: null
   icon: "36.svg"
   temperature: "36"
+  tempHigh: null
+  tempLow: null
   tempFeels: "34"
   uvIndex: null
   humidity: null
   visibility: null
   condition: "Partly cloudy"
-  cloudCover: "68%"
+  cloudCover: "73%"
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "SE 5 mph"
-  windGusts: "8 mph"
+  wind: "ESE 5 mph"
+  windGusts: "7 mph"
   precipitation: "0.00 in"
   precipitationProbability: "10%"
   thunderstormProbability: "0%"
+night:
+  name: null
+  icon: "36.svg"
+  temperature: "36"
+  tempHigh: null
+  tempLow: null
+  tempFeels: "34"
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Partly cloudy"
+  cloudCover: "73%"
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "ESE 5 mph"
+  windGusts: "7 mph"
+  precipitation: "0.00 in"
+  precipitationProbability: "10%"
+  thunderstormProbability: "0%"
+one:
+  name: "Sat"
+  icon: "36.svg"
+  temperature: null
+  tempHigh: "48°"
+  tempLow: "/36°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Partly cloudy"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "ESE 5 mph 7 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+two:
+  name: "Sun"
+  icon: "18.svg"
+  temperature: null
+  tempHigh: "50°"
+  tempLow: "/31°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "On-and-off rain and drizzle"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "1 Low SSW 8 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+three:
+  name: "Mon"
+  icon: "1.svg"
+  temperature: null
+  tempHigh: "40°"
+  tempLow: "/26°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Colder with plenty of sunshine"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "3 Moderate W 10 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+four:
+  name: "Tue"
+  icon: "3.svg"
+  temperature: null
+  tempHigh: "41°"
+  tempLow: "/29°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Partly sunny and cold"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "3 Moderate WNW 8 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+five:
+  name: "Wed"
+  icon: "1.svg"
+  temperature: null
+  tempHigh: "53°"
+  tempLow: "/31°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Breezy in the morning; otherwise, milder with plenty of sunshine"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "3 Moderate WSW 13 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+moonPhase: "Waxing Gibbous-96"
