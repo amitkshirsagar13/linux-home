@@ -7,7 +7,7 @@
 ######################
 # - Conky settings - #
 ######################
-background yes
+background no
 update_interval 10
  
 cpu_avg_samples 1
@@ -47,7 +47,7 @@ alignment top_left
 gap_x 400
 gap_y 60
 minimum_size 1000 300
-#maximum_width 182
+# maximum_width 182
 
 default_bar_size 60 8
 
@@ -67,20 +67,18 @@ default_color FFFFFF
 ############
 TEXT
 ${voffset 0}${goto 280}${hr 2}
-${image ~/.conky/gnome-conky/data/images/day.png -p 280,15}${image ~/.conky/gnome-conky/data/images/moon.png -p 550,40}${image ~/.conky/gnome-conky/data/images/night.png -p 750,15}
+${image ~/.conky/gnome-conky/data/images/day.xml -p 280,15}${image ~/.conky/gnome-conky/data/images/moon.png -p 550,40}${image ~/.conky/gnome-conky/data/images/night.xml -p 750,15}
 ${color black}${voffset -15}${goto 470}${font Santana:style=Bold:size=12}MoonPhase:       ${execi 300 yq '.moonPhase' ~/.conky/gnome-conky/data/weatherStore}
 ${goto 470}${font Santana:style=Bold:size=10}UV: ${execi 300 yq '.current.uvIndex' ~/.conky/gnome-conky/data/weatherStore}${goto 610}Temp:${execi 300 yq '.current.temperature' ~/.conky/gnome-conky/data/weatherStore} °C
 ${goto 470}${font Santana:style=Bold:size=10}Humidity: ${execi 300 yq '.current.humidity' ~/.conky/gnome-conky/data/weatherStore}${goto 610}Feels:${execi 300 yq '.current.tempFeels' ~/.conky/gnome-conky/data/weatherStore} °C
 ${goto 470}${font Santana:style=Bold:size=10}Visibility: ${execi 300 yq '.current.visibility' ~/.conky/gnome-conky/data/weatherStore}${goto 610}Condition:${execi 300 yq '.current.condition' ~/.conky/gnome-conky/data/weatherStore}
 ${goto 470}${font Santana:style=Bold:size=10}Pressure: ${execi 300 yq '.current.pressure' ~/.conky/gnome-conky/data/weatherStore}${goto 610}Cloud Cover:${execi 300 yq '.current.cloudCover' ~/.conky/gnome-conky/data/weatherStore}
 ${goto 470}${font Santana:style=Bold:size=10}Dew Point:${execi 300 yq '.current.dewPoint' ~/.conky/gnome-conky/data/weatherStore}${goto 610}Cloud Ceiling: ${execi 300 yq '.current.cloudCeiling' ~/.conky/gnome-conky/data/weatherStore}${color}
-# ${voffset -25}${font Santana:style=Bold:size=13}${goto 280}Today: ${execi 300 yq '.day.condition' ~/.conky/gnome-conky/data/weatherStore}${goto 770}Tonight: ${execi 300 yq '.night.condition' ~/.conky/gnome-conky/data/weatherStore}
 ${voffset 5}${goto 290}${font Santana:style=Bold:size=10}Temp: ${execi 300 yq '.day.temperature' ~/.conky/gnome-conky/data/weatherStore } °C    Feels: ${execi 300 yq '.day.tempFeels' ~/.conky/gnome-conky/data/weatherStore } °C${goto 770}Temp: ${execi 300 yq '.night.temperature' ~/.conky/gnome-conky/data/weatherStore} °C    Feels: ${execi 300 yq '.night.tempFeels' ~/.conky/gnome-conky/data/weatherStore} °C
 ${voffset -5}${goto 290}${hr 2}
-${font Santana:style=Bold:size=12}${goto 370}${execi 300 yq '.one.name' ~/.conky/gnome-conky/data/weatherStore}${goto 510}${execi 300 yq '.two.name' ~/.conky/gnome-conky/data/weatherStore}${goto 670}${execi 300 yq '.three.name' ~/.conky/gnome-conky/data/weatherStore}${goto 850}${execi 300 yq '.four.name' ~/.conky/gnome-conky/data/weatherStore}
-${image ~/.conky/gnome-conky/images/accuImage/day/2.png -p 230,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/3.png -p 400,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/4.png -p 570,175 -s 120x72}${image ~/.conky/gnome-conky/images/accuImage/day/5.png -p 740,175 -s 120x72}
+${font Santana:style=Bold:size=12}${goto 350}${execi 300 yq '.one.name' ~/.conky/gnome-conky/data/weatherStore}${goto 510}${execi 300 yq '.two.name' ~/.conky/gnome-conky/data/weatherStore}${goto 670}${execi 300 yq '.three.name' ~/.conky/gnome-conky/data/weatherStore}${goto 850}${execi 300 yq '.four.name' ~/.conky/gnome-conky/data/weatherStore}
+${image ~/.conky/gnome-conky/data/images/0.xml -p 320,200 -s 80x80}${image ~/.conky/gnome-conky/data/images/1.xml -p 480,200 -s 80x80}${image ~/.conky/gnome-conky/data/images/2.xml -p 640,200 -s 80x80}${image ~/.conky/gnome-conky/data/images/3.xml -p 820,200 -s 80x80}
 ${font Santana:style=Bold:size=8}${goto 300}${execi 300 yq '.one.wind' ~/.conky/gnome-conky/data/weatherStore}${goto 470}${execi 300 yq '.two.wind' ~/.conky/gnome-conky/data/weatherStore}${goto 630}${execi 300 yq '.three.wind' ~/.conky/gnome-conky/data/weatherStore}${goto 810}${execi 300 yq '.four.wind' ~/.conky/gnome-conky/data/weatherStore}
-# ${voffset 20}${font Santana:style=Bold:size=8}${goto 300}${execi 300 yq '.one.condition' ~/.conky/gnome-conky/data/weatherStore}${goto 470}${execi 300 yq '.two.condition' ~/.conky/gnome-conky/data/weatherStore}${goto 630}${execi 300 yq '.three.condition' ~/.conky/gnome-conky/data/weatherStore}${goto 810}${execi 300 yq '.four.condition' ~/.conky/gnome-conky/data/weatherStore}
 ${voffset 5}${goto 350}${font Santana:style=Bold:size=10}${execi 300 yq '.one.tempHigh' ~/.conky/gnome-conky/data/weatherStore}C${font Santana:size=9}${execi 300 yq '.one.tempLow' ~/.conky/gnome-conky/data/weatherStore}C${goto 500}${font Santana:style=Bold:size=10}${execi 300 yq '.two.tempHigh' ~/.conky/gnome-conky/data/weatherStore}C${font Santana:size=9}${execi 300 yq '.two.tempLow' ~/.conky/gnome-conky/data/weatherStore}C${goto 650}${font Santana:style=Bold:size=10}${execi 300 yq '.three.tempHigh' ~/.conky/gnome-conky/data/weatherStore}C${font Santana:size=9}${execi 300 yq '.three.tempLow' ~/.conky/gnome-conky/data/weatherStore}C${goto 830}${font Santana:style=Bold:size=10}${execi 300 yq '.four.tempHigh' ~/.conky/gnome-conky/data/weatherStore}C${font Santana:size=9}${execi 300 yq '.one.tempLow' ~/.conky/gnome-conky/data/weatherStore}C
 ${voffset 0}${goto 280}${hr 2}
-${voffset 5}${goto 700}Last Update: ${execi 300 yq '.metadata.lastUpdate' ~/.conky/gnome-conky/data/weatherStore} | ${execi 300 yq '.metadata.city' ~/.conky/gnome-conky/data/weatherStore}, ${execi 300 yq '.metadata.zipCode' ~/.conky/gnome-conky/data/weatherStore}
+${voffset 5}${goto 500}Last Update: ${execi 300 yq '.metadata.lastUpdate' ~/.conky/gnome-conky/data/weatherStore} | ${execi 300 yq '.metadata.city' ~/.conky/gnome-conky/data/weatherStore}, ${execi 300 yq '.metadata.zipCode' ~/.conky/gnome-conky/data/weatherStore}

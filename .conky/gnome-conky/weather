@@ -1,0 +1,2 @@
+#!/bin/bash
+java -jar -Dspring.config.location="/home/poomit/.conky/gnome-conky/weather.yaml" ~/.conky/gnome-conky/accu-weather-extractor-0.0.1-SNAPSHOT.jar > ~/.conky/gnome-conky/weather.log &

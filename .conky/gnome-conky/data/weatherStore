@@ -1,20 +1,20 @@
 current:
   name: null
   icon: "7.svg"
-  temperature: "32"
+  temperature: "33"
   tempHigh: null
   tempLow: null
-  tempFeels: "32"
+  tempFeels: "29"
   uvIndex: "0"
   humidity: "39%"
   visibility: "2 mi"
   condition: "Cloudy"
   cloudCover: "100%"
-  cloudCeiling: "600 ft"
-  pressure: "↔ 29.68 in"
-  dewPoint: "30° F"
+  cloudCeiling: "2100 ft"
+  pressure: "↑ 29.70 in"
+  dewPoint: "31° F"
   wind: "0"
-  windGusts: "94%"
+  windGusts: "92%"
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
@@ -28,17 +28,17 @@ day:
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
-    \ storm total snowfall an inch or two"
-  cloudCover: "5"
+  condition: "Mostly cloudy with a little snow at times, mainly early with little\
+    \ or no accumulation; storm total snowfall an inch or two"
+  cloudCover: "7"
   cloudCeiling: null
   pressure: null
   dewPoint: null
   wind: "WSW 9 mph"
   windGusts: "18 mph"
   precipitation: "0.2 in"
-  precipitationProbability: "85%"
-  thunderstormProbability: "0.03 in"
+  precipitationProbability: "86%"
+  thunderstormProbability: "0.06 in"
 night:
   name: null
   icon: "22.svg"
@@ -49,17 +49,17 @@ night:
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
-    \ storm total snowfall an inch or two"
-  cloudCover: "5"
+  condition: "Mostly cloudy with a little snow at times, mainly early with little\
+    \ or no accumulation; storm total snowfall an inch or two"
+  cloudCover: "7"
   cloudCeiling: null
   pressure: null
   dewPoint: null
   wind: "WSW 9 mph"
   windGusts: "18 mph"
   precipitation: "0.2 in"
-  precipitationProbability: "85%"
-  thunderstormProbability: "0.03 in"
+  precipitationProbability: "86%"
+  thunderstormProbability: "0.06 in"
 one:
   name: "Sun"
   icon: "22.svg"
@@ -70,8 +70,8 @@ one:
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
-    \ storm total snowfall an inch or two"
+  condition: "Mostly cloudy with a little snow at times, mainly early with little\
+    \ or no accumulation; storm total snowfall an inch or two"
   cloudCover: null
   cloudCeiling: null
   pressure: null
@@ -166,5 +166,5 @@ five:
 metadata:
   city: "troy"
   zipCode: "48098"
-  lastUpdate: "Sunday 26-Nov-23 19:01:39-0500"
+  lastUpdate: "Sunday 26-Nov-23 22:50:05-0500"
 moonPhase: "Waxing Gibbous"
