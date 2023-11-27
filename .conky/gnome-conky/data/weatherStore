@@ -4,10 +4,10 @@ current:
   temperature: "33"
   tempHigh: null
   tempLow: null
-  tempFeels: "29"
+  tempFeels: "30"
   uvIndex: "0"
   humidity: "39%"
-  visibility: "2 mi"
+  visibility: "4 mi"
   condition: "Cloudy"
   cloudCover: "100%"
   cloudCeiling: "2100 ft"
@@ -166,5 +166,5 @@ five:
 metadata:
   city: "troy"
   zipCode: "48098"
-  lastUpdate: "Sunday 26-Nov-23 22:50:05-0500"
+  lastUpdate: "Sunday 26-Nov-23 22:54:38-0500"
 moonPhase: "Waxing Gibbous"
