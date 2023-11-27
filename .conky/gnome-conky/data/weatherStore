@@ -1,161 +1,170 @@
 current:
   name: null
-  icon: "38.svg"
-  temperature: "42"
+  icon: "7.svg"
+  temperature: "32"
   tempHigh: null
   tempLow: null
-  tempFeels: "45"
+  tempFeels: "32"
   uvIndex: "0"
-  humidity: "31%"
-  visibility: "10 mi"
-  condition: "Mostly cloudy"
-  cloudCover: "76%"
-  cloudCeiling: "20900 ft"
-  pressure: "↓ 30.09 in"
-  dewPoint: "36° F"
+  humidity: "39%"
+  visibility: "2 mi"
+  condition: "Cloudy"
+  cloudCover: "100%"
+  cloudCeiling: "600 ft"
+  pressure: "↔ 29.68 in"
+  dewPoint: "30° F"
   wind: "0"
-  windGusts: "80%"
+  windGusts: "94%"
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
 day:
   name: null
-  icon: "36.svg"
-  temperature: "36"
+  icon: "22.svg"
+  temperature: "31"
   tempHigh: null
   tempLow: null
-  tempFeels: "34"
+  tempFeels: "21"
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Partly cloudy"
-  cloudCover: "73%"
+  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
+    \ storm total snowfall an inch or two"
+  cloudCover: "5"
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "ESE 5 mph"
-  windGusts: "7 mph"
-  precipitation: "0.00 in"
-  precipitationProbability: "10%"
-  thunderstormProbability: "0%"
+  wind: "WSW 9 mph"
+  windGusts: "18 mph"
+  precipitation: "0.2 in"
+  precipitationProbability: "85%"
+  thunderstormProbability: "0.03 in"
 night:
   name: null
-  icon: "36.svg"
-  temperature: "36"
+  icon: "22.svg"
+  temperature: "31"
   tempHigh: null
   tempLow: null
-  tempFeels: "34"
+  tempFeels: "21"
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Partly cloudy"
-  cloudCover: "73%"
+  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
+    \ storm total snowfall an inch or two"
+  cloudCover: "5"
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "ESE 5 mph"
-  windGusts: "7 mph"
-  precipitation: "0.00 in"
-  precipitationProbability: "10%"
-  thunderstormProbability: "0%"
+  wind: "WSW 9 mph"
+  windGusts: "18 mph"
+  precipitation: "0.2 in"
+  precipitationProbability: "85%"
+  thunderstormProbability: "0.03 in"
 one:
-  name: "Sat"
-  icon: "36.svg"
+  name: "Sun"
+  icon: "22.svg"
   temperature: null
-  tempHigh: "48°"
-  tempLow: "/36°"
+  tempHigh: "37°"
+  tempLow: "/31°"
   tempFeels: null
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Partly cloudy"
+  condition: "Mostly cloudy with a little snow at times with little or no accumulation;\
+    \ storm total snowfall an inch or two"
   cloudCover: null
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "ESE 5 mph 7 mph"
+  wind: "WSW 9 mph 18 mph"
   windGusts: null
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
 two:
-  name: "Sun"
-  icon: "18.svg"
+  name: "Mon"
+  icon: "19.svg"
   temperature: null
-  tempHigh: "50°"
-  tempLow: "/31°"
+  tempHigh: "33°"
+  tempLow: "/22°"
   tempFeels: null
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "On-and-off rain and drizzle"
+  condition: "Cloudy, breezy and chilly with a couple of snow showers; any heavier\
+    \ snow shower could coat some roads and reduce visibility"
   cloudCover: null
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "1 Low SSW 8 mph"
+  wind: "1 Low W 15 mph"
   windGusts: null
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
 three:
-  name: "Mon"
-  icon: "1.svg"
+  name: "Tue"
+  icon: "4.svg"
   temperature: null
-  tempHigh: "40°"
-  tempLow: "/26°"
+  tempHigh: "30°"
+  tempLow: "/24°"
   tempFeels: null
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Colder with plenty of sunshine"
+  condition: "Cold with times of clouds and sun"
   cloudCover: null
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "3 Moderate W 10 mph"
+  wind: "1 Low W 12 mph"
   windGusts: null
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
 four:
-  name: "Tue"
-  icon: "3.svg"
-  temperature: null
-  tempHigh: "41°"
-  tempLow: "/29°"
-  tempFeels: null
-  uvIndex: null
-  humidity: null
-  visibility: null
-  condition: "Partly sunny and cold"
-  cloudCover: null
-  cloudCeiling: null
-  pressure: null
-  dewPoint: null
-  wind: "3 Moderate WNW 8 mph"
-  windGusts: null
-  precipitation: null
-  precipitationProbability: null
-  thunderstormProbability: null
-five:
   name: "Wed"
-  icon: "1.svg"
+  icon: "19.svg"
   temperature: null
-  tempHigh: "53°"
+  tempHigh: "39°"
   tempLow: "/31°"
   tempFeels: null
   uvIndex: null
   humidity: null
   visibility: null
-  condition: "Breezy in the morning; otherwise, milder with plenty of sunshine"
+  condition: "A couple of flurries in the morning; otherwise, mostly cloudy and not\
+    \ as cold"
   cloudCover: null
   cloudCeiling: null
   pressure: null
   dewPoint: null
-  wind: "3 Moderate WSW 13 mph"
+  wind: "1 Low SW 10 mph"
   windGusts: null
   precipitation: null
   precipitationProbability: null
   thunderstormProbability: null
-moonPhase: "Waxing Gibbous-96"
+five:
+  name: "Thu"
+  icon: "4.svg"
+  temperature: null
+  tempHigh: "45°"
+  tempLow: "/35°"
+  tempFeels: null
+  uvIndex: null
+  humidity: null
+  visibility: null
+  condition: "Times of sun and clouds"
+  cloudCover: null
+  cloudCeiling: null
+  pressure: null
+  dewPoint: null
+  wind: "2 Low SSW 9 mph"
+  windGusts: null
+  precipitation: null
+  precipitationProbability: null
+  thunderstormProbability: null
+metadata:
+  city: "troy"
+  zipCode: "48098"
+  lastUpdate: "Sunday 26-Nov-23 19:01:39-0500"
+moonPhase: "Waxing Gibbous"
