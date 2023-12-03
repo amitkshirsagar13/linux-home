@@ -32,7 +32,7 @@ export const DockerMenu = GObject.registerClass(
       this._refreshDelay = this.settings.get_int("refresh-delay");
 
       const gicon = Gio.icon_new_for_string(
-        getExtensionObject().path + "/icons/docker-symbolic.svg"
+        getExtensionObject().path + "/icons/docker.svg"
       );
       //const panelIcon = (name = "docker-symbolic", styleClass = "system-status-icon") => new St.Icon({ gicon: gioIcon(name), style_class: styleClass, icon_size: "16" });
       this.icon = new St.Icon({
