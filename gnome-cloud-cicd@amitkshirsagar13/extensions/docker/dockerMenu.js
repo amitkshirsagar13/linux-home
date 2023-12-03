@@ -4,55 +4,67 @@ import GLib from 'gi://GLib';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
-import * as Docker from './dockerExtension.js'
+import Clutter from 'gi://Clutter';
+
 import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js'
-import * as panelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js'
-import { DockerSubMenu } from './dockerSubMenuMenuItem.js'
+
 import { getExtensionObject } from '../../extension.js'
+import { Monitor } from '../base/monitor.js'
+import * as Docker from './dockerExtension.js'
+import { DockerSubMenu } from './dockerSubMenuMenuItem.js'
 
 const isContainerUp = (container) => container.status.indexOf("Up") > -1;
 
 // Docker icon as panel menu
 export const DockerMenu = GObject.registerClass(
-  class DockerMenu extends panelMenu.Button {
-    _init(menuAlignment, nameText) {
-      super._init(menuAlignment, nameText);
+  class DockerMenu extends Monitor {
+    _init(name, uuid) {
+      super._init(name, uuid);
       this._refreshCount = this._refreshCount.bind(this);
       this._refreshMenu = this._refreshMenu.bind(this);
       this._feedMenu = this._feedMenu.bind(this);
       this._updateCountLabel = this._updateCountLabel.bind(this);
       this._timeout = null;
       this.settings = getExtensionObject().getSettings(
-        "red.software.systems.easy_docker_containers"
+        "io.k8s.framework.gnome-cloud-cicd"
       );
 
       this._refreshDelay = this.settings.get_int("refresh-delay");
-      this.settings.connect(
-        "changed::refresh-delay",
-        this._refreshCount
-      );
 
-      // Custom Docker icon as menu button
-      const hbox = new St.BoxLayout({ style_class: "panel-status-menu-box" });
       const gicon = Gio.icon_new_for_string(
         getExtensionObject().path + "/icons/docker-symbolic.svg"
       );
       //const panelIcon = (name = "docker-symbolic", styleClass = "system-status-icon") => new St.Icon({ gicon: gioIcon(name), style_class: styleClass, icon_size: "16" });
-      const dockerIcon = new St.Icon({
+      this.icon = new St.Icon({
         gicon: gicon,
         style_class: "system-status-icon",
         icon_size: "16",
       });
+      this.addChild(this.icon);
       const loading = _("Loading...");
       this.buttonText = new St.Label({
         text: loading,
-        style: "margin-top:4px;",
+        style_class: 'panel-label',
+        y_align: Clutter.ActorAlign.CENTER,
       });
+      this.addChild(this.buttonText);
+      this.addChild(new St.Label({
+          text: 'Docker',
+          style_class: 'panel-label',
+          y_align: Clutter.ActorAlign.CENTER,
+      }));
 
-      hbox.add_child(dockerIcon);
-      hbox.add_child(this.buttonText);
-      this.add_child(hbox);
+      this._buildMenu();
+
+    }
+    
+    _buildMenu() {
+      this.settings.connect(
+        "changed::refresh-delay",
+        this._refreshCount
+      );
       this.menu.connect("open-state-changed", this._refreshMenu.bind(this));
+      const loading = _("Loading...");
       this.menu.addMenuItem(new PopupMenuItem(loading));
 
       this._refreshCount();
@@ -61,9 +73,9 @@ export const DockerMenu = GObject.registerClass(
       }
     }
 
-    disable() {
-      this.clearLoop();
-      super.disable();
+    destroy() {
+        super.destroy();
+        this.clearLoop();
     }
 
     _refreshDelayChanged() {

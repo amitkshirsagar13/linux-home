@@ -4,6 +4,8 @@ import { Indicator } from './extensions/indicator/indicatorMonitor.js'
 // import { DockerMenu } from './extensions/docker/dockerMenu.js'
 import { GnomeCloudCicdContainer } from './extensions/container.js';
 import St from 'gi://St';
+import { DockerMenu } from './extensions/docker/dockerMenu.js';
+import { KubeCluster } from './extensions/kube/kubeMonitor.js';
 
 export const getExtensionObject = () => Extension.lookupByUUID('gnome-cloud-cicd@amitkshirsagar13');
 
@@ -24,7 +26,9 @@ class GnomeCloudCicd {
             positionInPanel: MenuPosition.LEFT
         };
         this.container = new GnomeCloudCicdContainer();
-        this.container.addMonitor(new Indicator('Indicator', 'xxx'));
+        this.container.addMonitor(new Indicator('Indicator', 'indicator'));
+        this.container.addMonitor(new DockerMenu('Docker Containers', 'docker-containers'));
+        this.container.addMonitor(new KubeCluster('Kube Clusters', 'kube-clusters'));
     }
 
     destroy() {
