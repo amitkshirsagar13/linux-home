@@ -7,7 +7,6 @@ import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.j
 import { DockerMenuItem } from './dockerMenuItem.js';
 import { getExtensionObject } from "../../extension.js";
 
-
 /**
  * Create Gio.icon based St.Icon
  *

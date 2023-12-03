@@ -1,12 +1,14 @@
-import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Atk from 'gi://Atk';
 import GLib from 'gi://GLib';
+import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import Clutter from 'gi://Clutter';
+
+import { getExtensionObject } from '../../extension.js';
 
 const MENU_COLUMNS = 2;
 
@@ -31,6 +33,10 @@ export const Monitor = GObject.registerClass({
         this.uuid = uuid;
         this._delegate = this;
         this._signals = [];
+
+        this.settings = getExtensionObject().getSettings(
+            "io.k8s.framework.gnome-cloud-cicd"
+        );
 
         let hbox = new St.BoxLayout();
         this.add_child(hbox);

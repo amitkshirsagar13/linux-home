@@ -6,6 +6,7 @@ import { getExtensionObject } from '../../extension.js'
 import { Monitor } from '../base/monitor.js'
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import { buildIcon } from '../base/ui-component-store.js';
 
 const MENU_COLUMNS = 2;
 
@@ -13,17 +14,7 @@ export const Indicator = GObject.registerClass(
 class Indicator extends Monitor {
     _init(name, uuid) {
         super._init(name, uuid);
-
-
-        const gicon = Gio.icon_new_for_string(
-            getExtensionObject().path + "/icons/circle-three.svg"
-          );
-          //const panelIcon = (name = "docker-symbolic", styleClass = "system-status-icon") => new St.Icon({ gicon: gioIcon(name), style_class: styleClass, icon_size: "16" });
-          this.icon = new St.Icon({
-            gicon: gicon,
-            style_class: "system-status-icon",
-            icon_size: "16",
-          });
+        this.icon = buildIcon("circle-three")
         this.addChild(this.icon);
         this.addChild(new St.Label({
             text: 'Indicator',

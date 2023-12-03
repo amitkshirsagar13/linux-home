@@ -8,6 +8,7 @@ import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.j
 
 import { Monitor } from "../base/monitor.js";
 import { getExtensionObject } from "../../extension.js";
+import { buildIcon } from "../base/ui-component-store.js";
 
 const MENU_COLUMNS = 2;
 
@@ -16,21 +17,9 @@ export const KubeCluster = GObject.registerClass(
     _init(name, uuid) {
       super._init(name, uuid);
       this._timeout = null;
-      this.settings = getExtensionObject().getSettings(
-        "io.k8s.framework.gnome-cloud-cicd"
-      );
-
       this._refreshDelay = this.settings.get_int("refresh-delay");
 
-      const gicon = Gio.icon_new_for_string(
-        getExtensionObject().path + "/icons/google-kubernetes.svg"
-      );
-      //const panelIcon = (name = "docker-symbolic", styleClass = "system-status-icon") => new St.Icon({ gicon: gioIcon(name), style_class: styleClass, icon_size: "16" });
-      this.icon = new St.Icon({
-        gicon: gicon,
-        style_class: "system-status-icon",
-        icon_size: "16",
-      });
+      this.icon = buildIcon("google-kubernetes");
       this.addChild(this.icon);
       this.addChild(
         new St.Label({
