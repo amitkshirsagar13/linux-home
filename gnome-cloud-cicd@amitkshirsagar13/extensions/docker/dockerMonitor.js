@@ -91,7 +91,8 @@ export const DockerMenu = GObject.registerClass(
           this._updateCountLabel(
             containers.filter((container) => isContainerUp(container)).length
           );
-          this._feedMenu(containers).catch((e) =>
+          this._feedMenu(containers)
+          .catch((e) =>
             this.menu.addMenuItem(new PopupMenuItem(e.message))
           );
         }
@@ -182,23 +183,15 @@ export const DockerMenu = GObject.registerClass(
           );
         })
       ) {
-        this.menu.removeAll();
+        this.clearMenu();
         this._containers = dockerContainers;
-        // this._containers.forEach((container) => {
-        //   const subMenu = new DockerSubMenu(
-        //     container.project,
-        //     container.name,
-        //     container.status
-        //   );
-        //   this.menu.addMenuItem(subMenu);
-        // });
         this._containers.forEach((container) => {
           const subMenu = new DockerContainerItem(
             container.project,
             container.name,
             container.status
           );
-          this.addChild(subMenu);
+          this.addMenuRow(subMenu, 0, 2, 1);
         });
         if (!this._containers.length) {
           this.menu.addMenuItem(new PopupMenuItem("No containers detected"));

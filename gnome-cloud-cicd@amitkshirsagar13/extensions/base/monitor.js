@@ -103,6 +103,11 @@ export const Monitor = GObject.registerClass({
         }
     }
 
+    clearMenu() {
+        this.menu.removeAll();
+        this.buildMenuBase();
+    }
+
     _onOpenStateChanged(menu, open) {
         if (open) {
             this.add_style_pseudo_class('active');

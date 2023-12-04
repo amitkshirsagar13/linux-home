@@ -2,26 +2,34 @@
 
 import St from 'gi://St';
 import Atk from 'gi://Atk';
-import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
-import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import { DockerMenuItem } from './dockerMenuItem.js';
 import { buildIcon } from '../base/ui-component-store.js';
 import { ActionIcon } from '../base/actionIcon.js';
+import * as Docker from './dockerExtension.js'
 
-/**
- * Create Gio.icon based St.Icon
- *
- * @param {String} name The name of the icon (filename without extension)
- * @param {String} styleClass The style of the icon
- *
- * @return {Object} an St.Icon instance
- */
-const menuIcon = (containerName, name = "docker-container-unavailable-symbolic", styleClass = "system-status-icon") => {
-  const menuIconWidget = new ActionIcon(`${containerName}-${name}`, `${containerName}-${name}`);
-  menuIconWidget.addChild(buildIcon(name, styleClass));
-  return menuIconWidget;
+
+const _dockerAction = (containerName, dockerCommand) => {
+  Docker.runCommand(dockerCommand, containerName, (ok, command, err) => {
+    if (ok) {
+      Main.notify("Command `" + command + "` successful");
+    } else {
+      let errMsg = _("Error occurred when running `" + command + "`");
+      Main.notifyError(errMsg);
+      logError(errMsg);
+      logError(err);
+    }
+  });
 }
+
+const actionIcon = (containerName, name = "empty", styleClass = "action-button", action) => {
+  const actionIconWidget = new ActionIcon(`${containerName}-${name}`, `${containerName}-${name}`);
+  let button = new St.Button({style_class: `${name != 'empty' && action ? 'button' : ''} action-button`});
+  button.child = buildIcon(name, `${styleClass}`, action ? "16" : "20");
+  actionIconWidget.addChild(button);
+  action && button.connect('clicked', () => _dockerAction(containerName, action)); // 
+  return actionIconWidget;
+}
+
 
 /**
  * Get the status of a container from the status message obtained with the docker command
@@ -31,7 +39,8 @@ const menuIcon = (containerName, name = "docker-container-unavailable-symbolic",
  * @return {String} The status in ['running', 'paused', 'stopped']
  */
 const getStatus = (statusMessage) => {
-  let status = "stopped";
+  let status = "undefined";
+  if (statusMessage.indexOf("Exited") > -1) status = "stopped";
   if (statusMessage.indexOf("Up") > -1) status = "running";
   if (statusMessage.indexOf("Paused") > -1) status = "paused";
 
@@ -41,13 +50,13 @@ const getStatus = (statusMessage) => {
 // Menu entry representing a Docker container
 export const DockerContainerItem = GObject.registerClass(
   class DockerContainerItem extends St.Widget {
-    _init(projectName, name, containerStatusMessage) {
+    _init(projectName, containerName, containerStatusMessage) {
       super._init({
           reactive: true,
           can_focus: true,
           track_hover: true,
-          style_class: 'panel-button',
-          accessible_name: name,
+          style_class: 'item-container',
+          accessible_name: containerName,
           accessible_role: Atk.Role.MENU,
           x_expand: true,
           y_expand: true,
@@ -57,100 +66,43 @@ export const DockerContainerItem = GObject.registerClass(
       this.add_child(hbox);
       this.box = hbox;
 
-      switch (getStatus(containerStatusMessage)) {
-        case "stopped":
-          this.insert_child_at_index(
-            menuIcon("docker-container-symbolic", "status-stopped"),
-            1
-          );
+      const status = getStatus(containerStatusMessage);
 
-          this.menu.addMenuItem(
-            new DockerMenuItem(
-              containerName,
-              "start",
-              menuIcon("docker-container-start-symbolic")
-            )
-          );
+      this.addChild(actionIcon(containerName, "docker-container-symbolic", `status-${status}`));
+      this.addChild(actionIcon(containerName, "docker-container-logs-symbolic", "status-logs", "logs"));
+      
+      switch (status) {
+        case "running":
+          this.addChild(actionIcon(containerName, "docker-container-pause-symbolic", undefined, "pause"));
+          this.addChild(actionIcon(containerName, "docker-container-stop-symbolic", undefined, "stop"));
+          this.addChild(actionIcon(containerName, "docker-container-restart-symbolic", undefined, "restart"));
+          this.addChild(actionIcon(containerName, "docker-container-exec-symbolic", undefined, "exec"));
           break;
 
-        case "running":
-          this.addChild(menuIcon("docker-container-symbolic", "status-running"));
-          this.addChild(menuIcon("docker-container-pause-symbolic", "status-running"));
-          this.addChild(menuIcon("docker-container-stop-symbolic", "status-running"));
-          this.addChild(menuIcon("docker-container-restart-symbolic", "status-running"));
-          this.addChild(menuIcon("docker-container-exec-symbolic", "status-running"));
-          // this.insert_child_at_index(
-          //   menuIcon("docker-container-symbolic", "status-running"),
-          //   1
-          // );
-
-          // this.menu.addMenuItem(
-          //   new DockerMenuItem(
-          //     containerName,
-          //     "pause",
-          //     menuIcon("docker-container-pause-symbolic")
-          //   )
-          // );
-
-          // this.menu.addMenuItem(
-          //   new DockerMenuItem(
-          //     containerName,
-          //     "stop",
-          //     menuIcon("docker-container-stop-symbolic")
-          //   )
-          // );
-
-          // this.menu.addMenuItem(
-          //   new DockerMenuItem(
-          //     containerName,
-          //     "restart",
-          //     menuIcon("docker-container-restart-symbolic")
-          //   )
-          // );
-
-          // this.menu.addMenuItem(
-          //   new DockerMenuItem(
-          //     containerName,
-          //     "exec",
-          //     menuIcon("docker-container-exec-symbolic")
-          //   )
-          // );
+        case "stopped":
+          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", undefined, "start"));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
           break;
 
         case "paused":
-          this.insert_child_at_index(
-            menuIcon("docker-container-symbolic", "status-paused"),
-            1
-          );
-
-          this.menu.addMenuItem(
-            new DockerMenuItem(
-              containerName,
-              "unpause",
-              menuIcon("docker-container-start-symbolic")
-            )
-          );
+          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", undefined, "unpause"));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
           break;
 
         default:
-          this.insert_child_at_index(
-            menuIcon(
-              "docker-container-unavailable-symbolic",
-              "status-undefined"
-            ),
-            1
-          );
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
+          this.addChild(actionIcon(containerName));
           break;
       }
 
-      this.addChild(menuIcon("docker-container-logs-symbolic", "status-running"));
-      // this.menu.addMenuItem(
-      //   new DockerMenuItem(
-      //     containerName,
-      //     "logs",
-      //     menuIcon("docker-container-logs-symbolic")
-      //   )
-      // );
+      this.addChild(new St.Label({text: _(containerName), style_class: `item-label ${status ==='running' ? 'left-label-padding' : ''}`}));
+
     }
     addChild(child) {
       if (this.box) {

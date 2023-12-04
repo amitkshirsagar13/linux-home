@@ -22,7 +22,7 @@ export const ActionIcon = GObject.registerClass({
             reactive: true,
             can_focus: true,
             track_hover: true,
-            style_class: 'panel-button',
+            style_class: 'action-icon',
             accessible_name: name,
             accessible_role: Atk.Role.MENU,
             x_expand: true,
