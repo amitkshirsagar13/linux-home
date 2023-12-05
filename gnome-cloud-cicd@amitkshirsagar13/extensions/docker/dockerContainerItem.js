@@ -3,6 +3,9 @@
 import St from 'gi://St';
 import Atk from 'gi://Atk';
 import GObject from 'gi://GObject';
+
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
 import { buildIcon } from '../base/ui-component-store.js';
 import { ActionIcon } from '../base/actionIcon.js';
 import * as Docker from './dockerExtension.js'
