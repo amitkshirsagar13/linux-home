@@ -1,12 +1,9 @@
 import St from 'gi://St';
 import Atk from 'gi://Atk';
 import GLib from 'gi://GLib';
-import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { getExtensionObject } from '../../extension.js';
 

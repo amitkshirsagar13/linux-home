@@ -26,7 +26,7 @@ const _dockerAction = (containerName, dockerCommand) => {
 
 const actionIcon = (containerName, name = "empty", styleClass = "action-button", action) => {
   const actionIconWidget = new ActionIcon(`${containerName}-${name}`, `${containerName}-${name}`);
-  let button = new St.Button({style_class: `${name != 'empty' && action ? 'button' : ''} action-button`});
+  let button = new St.Button({style_class: `${name != 'empty' && action ? 'button' : 'empty-icon'} action-button`});
   button.child = buildIcon(name, `${styleClass}`, action ? "16" : "20");
   actionIconWidget.addChild(button);
   action && button.connect('clicked', () => _dockerAction(containerName, action)); // 
@@ -72,25 +72,25 @@ export const DockerContainerItem = GObject.registerClass(
       const status = getStatus(containerStatusMessage);
 
       this.addChild(actionIcon(containerName, "docker-container-symbolic", `status-${status}`));
-      this.addChild(actionIcon(containerName, "docker-container-logs-symbolic", "status-logs", "logs"));
+      this.addChild(actionIcon(containerName, "docker-container-logs-symbolic", "status-undefined", "logs"));
       
       switch (status) {
         case "running":
-          this.addChild(actionIcon(containerName, "docker-container-pause-symbolic", undefined, "pause"));
-          this.addChild(actionIcon(containerName, "docker-container-stop-symbolic", undefined, "stop"));
-          this.addChild(actionIcon(containerName, "docker-container-restart-symbolic", undefined, "restart"));
-          this.addChild(actionIcon(containerName, "docker-container-exec-symbolic", undefined, "exec"));
+          this.addChild(actionIcon(containerName, "docker-container-pause-symbolic", "status-unpause", "pause"));
+          this.addChild(actionIcon(containerName, "docker-container-stop-symbolic", "status-stopped", "stop"));
+          this.addChild(actionIcon(containerName, "docker-container-restart-symbolic", "status-paused", "restart"));
+          this.addChild(actionIcon(containerName, "docker-container-exec-symbolic", "status-exec", "exec"));
           break;
 
         case "stopped":
-          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", undefined, "start"));
+          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", "status-running", "start"));
           this.addChild(actionIcon(containerName));
           this.addChild(actionIcon(containerName));
           this.addChild(actionIcon(containerName));
           break;
 
         case "paused":
-          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", undefined, "unpause"));
+          this.addChild(actionIcon(containerName, "docker-container-start-symbolic", "status-running", "unpause"));
           this.addChild(actionIcon(containerName));
           this.addChild(actionIcon(containerName));
           this.addChild(actionIcon(containerName));
@@ -104,7 +104,7 @@ export const DockerContainerItem = GObject.registerClass(
           break;
       }
 
-      this.addChild(new St.Label({text: _(containerName), style_class: `item-label ${status ==='running' ? 'left-label-padding' : ''}`}));
+      this.addChild(new St.Label({text: _(containerName), style_class: `item-label`}));
 
     }
     addChild(child) {

@@ -4,6 +4,9 @@
 	color: #9e9e9e;
 }
 
+.status-exec {
+}
+
 .status-stopped {
 	color: #ff3d00;
 }
@@ -16,7 +19,7 @@
 	color: #00b0ff;
 }
 
-.status-logs {
+.status-unpause {
 	color: #FFFF00;
 }
 
@@ -28,6 +31,11 @@
 .action-icon {
 	padding: 0px !important;
 	margin: 0px !important;
+}
+.empty-icon {
+	padding: 0px;
+	margin: 0px;
+	width: 16px;
 }
 
 .action-button {
@@ -46,7 +54,4 @@
 .item-label {
 	padding: 0px 6px;
 	margin-top: 4px;
-}
-.left-label-padding {
-	padding-left: 18px;
 }

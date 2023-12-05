@@ -2,16 +2,13 @@
 
 import GLib from 'gi://GLib';
 import St from 'gi://St';
-import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 
 import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js'
 
-import { getExtensionObject } from '../../extension.js';
 import { Monitor } from '../base/monitor.js';
 import * as Docker from './dockerExtension.js';
-import { DockerSubMenu } from './dockerSubMenuMenuItem.js';
 import { DockerContainerItem } from './dockerContainerItem.js';
 import { buildIcon } from '../base/ui-component-store.js';
 
