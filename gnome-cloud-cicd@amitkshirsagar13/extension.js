@@ -25,6 +25,14 @@ class GnomeCloudCicd {
         this.container.addMonitor(new DockerMenu('Docker Containers', 'docker-containers'));
         this.container.addMonitor(new KindCluster('Kind Clusters', 'kind-clusters'));
     }
+    addToPanel() {
+        Main.panel.addToStatusArea('GnomeCloudCicd', this.container, 1, 'left');
+        this.container.monitors.forEach(monitor => {
+            Main.panel.menuManager.addMenu(monitor.menu);
+            monitor.refresh();
+        });
+    }
+
 
     destroy() {
         this.container.monitors.forEach(monitor => monitor.destroy());
@@ -40,7 +48,7 @@ export default class GnomeCloudCicdExtension extends Extension {
 
     enable() {
         this.gnomeCloudCicd = new GnomeCloudCicd();
-        Main.panel.addToStatusArea('GnomeCloudCicd', this.gnomeCloudCicd.container, 1, 'left');
+        this.gnomeCloudCicd.addToPanel();
     }
 
     disable() {

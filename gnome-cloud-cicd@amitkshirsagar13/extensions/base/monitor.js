@@ -4,7 +4,7 @@ import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -15,7 +15,7 @@ const MENU_COLUMNS = 2;
 export const Monitor = GObject.registerClass({
     Properties: {
     },
-    Signals: {'menu-set': {}},
+    Signals: { 'menu-set': {} },
 }, class Monitor extends St.Widget {
     _init(name, uuid) {
         super._init({
@@ -84,7 +84,7 @@ export const Monitor = GObject.registerClass({
         let statusMenu = new PopupMenu.PopupMenuSection();
         let grid = new St.Widget({
             style_class: 'menu-grid',
-            layout_manager: new Clutter.GridLayout({orientation: Clutter.Orientation.VERTICAL}),
+            layout_manager: new Clutter.GridLayout({ orientation: Clutter.Orientation.VERTICAL }),
         });
         this.lm = grid.layout_manager;
         this.menuRow = 0;
@@ -106,6 +106,11 @@ export const Monitor = GObject.registerClass({
     clearMenu() {
         this.menu.removeAll();
         this.buildMenuBase();
+    }
+
+    refresh() {
+        // Override this in child classes to refresh resource consumption/activity
+        console.error('Must override Monitor.refresh()');
     }
 
     _onOpenStateChanged(menu, open) {
@@ -183,7 +188,7 @@ export const Monitor = GObject.registerClass({
     vfunc_event(event) {
         if (this.menu &&
             (event.type() === Clutter.EventType.TOUCH_BEGIN ||
-             event.type() === Clutter.EventType.BUTTON_PRESS)) {
+                event.type() === Clutter.EventType.BUTTON_PRESS)) {
             this.menu.toggle();
         }
 
