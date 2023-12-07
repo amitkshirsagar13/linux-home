@@ -76,10 +76,10 @@ export const DockerMonitorItem = GObject.registerClass(
 
       switch (status) {
         case "running":
-          this.addChild(actionIcon(containerName, "docker-container-pause-symbolic", "status-unpause", "pause"));
-          this.addChild(actionIcon(containerName, "docker-container-stop-symbolic", "status-stopped", "stop"));
-          this.addChild(actionIcon(containerName, "docker-container-restart-symbolic", "status-paused", "restart"));
           this.addChild(actionIcon(containerName, "docker-container-exec-symbolic", "status-exec", "exec"));
+          this.addChild(actionIcon(containerName, "docker-container-pause-symbolic", "status-unpause", "pause"));
+          this.addChild(actionIcon(containerName, "docker-container-restart-symbolic", "status-paused", "restart"));
+          this.addChild(actionIcon(containerName, "docker-container-stop-symbolic", "status-stopped", "stop"));
           break;
 
         case "stopped":
