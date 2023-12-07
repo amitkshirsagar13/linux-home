@@ -4,6 +4,7 @@ import { GnomeCloudCicdContainer } from './extensions/container.js';
 import { Indicator } from './extensions/indicator/indicatorMonitor.js'
 import { DockerMenu } from './extensions/docker/dockerMonitor.js';
 import { KindCluster } from './extensions/kind/kindMonitor.js';
+import { KubeCluster } from './extensions/kube/kubeMonitor.js';
 
 export const getExtensionObject = () => Extension.lookupByUUID('gnome-cloud-cicd@amitkshirsagar13');
 
@@ -21,12 +22,13 @@ const MenuPosition = {
 class GnomeCloudCicd {
     constructor() {
         this.container = new GnomeCloudCicdContainer();
-        this.container.addMonitor(new Indicator('Indicator', 'indicator'));
+        // this.container.addMonitor(new Indicator('Indicator', 'indicator'));
         this.container.addMonitor(new DockerMenu('Docker Containers', 'docker-containers'));
+        // this.container.addMonitor(new KubeCluster('Kube Clusters', 'kube-clusters'));
         this.container.addMonitor(new KindCluster('Kind Clusters', 'kind-clusters'));
     }
     addToPanel() {
-        Main.panel.addToStatusArea('GnomeCloudCicd', this.container, 1, 'left');
+        Main.panel.addToStatusArea('GnomeCloudCicd', this.container, -1, 'left');
         this.container.monitors.forEach(monitor => {
             Main.panel.menuManager.addMenu(monitor.menu);
             monitor.refresh();

@@ -8,9 +8,9 @@ import Clutter from 'gi://Clutter';
 import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js'
 
 import { Monitor } from '../base/monitor.js';
-import * as Docker from './dockerExtension.js';
-import { DockerContainerItem } from './dockerContainerItem.js';
 import { buildIcon } from '../base/ui-component-store.js';
+import * as System from '../base/systemInterface.js';
+import { DockerMonitorItem } from './dockerMonitorItem.js';
 
 const isContainerUp = (container) => container.status.indexOf("Up") > -1;
 
@@ -38,15 +38,14 @@ export const DockerMenu = GObject.registerClass(
       });
       this.addChild(this.buttonText);
       this.addChild(new St.Label({
-          text: 'Docker',
-          style_class: 'panel-label',
-          y_align: Clutter.ActorAlign.CENTER,
+        text: 'Docker',
+        style_class: 'panel-label',
+        y_align: Clutter.ActorAlign.CENTER,
       }));
 
       this._buildMenu();
-
     }
-    
+
     _buildMenu() {
       this.settings.connect(
         "changed::refresh-delay",
@@ -57,14 +56,14 @@ export const DockerMenu = GObject.registerClass(
       this.menu.addMenuItem(new PopupMenuItem(loading));
 
       this._refreshCount();
-      if (Docker.hasPodman || Docker.hasDocker) {
+      if (System.hasPodman || System.hasDocker) {
         this.show();
       }
     }
 
     destroy() {
-        super.destroy();
-        this.clearLoop();
+      super.destroy();
+      this.clearLoop();
     }
 
     _refreshDelayChanged() {
@@ -84,14 +83,14 @@ export const DockerMenu = GObject.registerClass(
     async _refreshMenu() {
       try {
         if (this.menu.isOpen) {
-          const containers = await Docker.getContainers();
+          const containers = await System.getContainers();
           this._updateCountLabel(
             containers.filter((container) => isContainerUp(container)).length
           );
           this._feedMenu(containers)
-          .catch((e) =>
-            this.menu.addMenuItem(new PopupMenuItem(e.message))
-          );
+            .catch((e) =>
+              this.menu.addMenuItem(new PopupMenuItem(e.message))
+            );
         }
       } catch (e) {
         logError(e);
@@ -99,7 +98,7 @@ export const DockerMenu = GObject.registerClass(
     }
 
     _checkServices() {
-      if (!Docker.hasPodman && !Docker.hasDocker) {
+      if (!System.hasPodman && !System.hasDocker) {
         let errMsg = _("Please install Docker or Podman to use this plugin");
         this.menu.addMenuItem(new PopupMenuItem(errMsg));
         throw new Error(errMsg);
@@ -107,7 +106,7 @@ export const DockerMenu = GObject.registerClass(
     }
 
     async _checkDockerRunning() {
-      if (!Docker.hasPodman && !(await Docker.isDockerRunning())) {
+      if (!System.hasPodman && !(await System.isDockerRunning())) {
         let errMsg = _(
           "Please start your Docker service first!\n(Seems Docker daemon not started yet.)"
         );
@@ -116,7 +115,7 @@ export const DockerMenu = GObject.registerClass(
     }
 
     async _checkUserInDockerGroup() {
-      if (!Docker.hasPodman && !(await Docker.isUserInDockerGroup)) {
+      if (!System.hasPodman && !(await System.isUserInDockerGroup)) {
         let errMsg = _(
           "Please put your Linux user into `docker` group first!\n(Seems not in that yet.)"
         );
@@ -137,7 +136,7 @@ export const DockerMenu = GObject.registerClass(
         GLib.source_remove(this._timeout);
       }
 
-        this._timeout = null;
+      this._timeout = null;
 
     }
 
@@ -148,7 +147,7 @@ export const DockerMenu = GObject.registerClass(
         // clear the loop to avoid a race condition infinitely spamming logs about St.Label not longer being accessible
         this.clearLoop();
 
-        const dockerCount = await Docker.getContainerCount();
+        const dockerCount = await System.getContainerCount();
         this._updateCountLabel(dockerCount);
 
         // Allow setting a value of 0 to disable background refresh in the settings
@@ -183,7 +182,7 @@ export const DockerMenu = GObject.registerClass(
         this.clearMenu();
         this._containers = dockerContainers;
         this._containers.forEach((container) => {
-          const subMenu = new DockerContainerItem(
+          const subMenu = new DockerMonitorItem(
             container.project,
             container.name,
             container.status

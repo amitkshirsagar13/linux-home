@@ -3,7 +3,7 @@ import Atk from 'gi://Atk';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import { getExtensionObject } from '../../extension.js';
 
@@ -12,7 +12,7 @@ const MENU_COLUMNS = 2;
 export const ActionIcon = GObject.registerClass({
     Properties: {
     },
-    Signals: {'menu-set': {}},
+    Signals: { 'menu-set': {} },
 }, class ActionIcon extends St.Widget {
     _init(name, uuid) {
         super._init({
@@ -38,9 +38,6 @@ export const ActionIcon = GObject.registerClass({
         let hbox = new St.BoxLayout();
         this.add_child(hbox);
         this.box = hbox;
-        this.meter = null;
-        this.usage = null;
-        this.activityBox = null;
 
         this._minHPadding = this._natHPadding = 0.0;
     }

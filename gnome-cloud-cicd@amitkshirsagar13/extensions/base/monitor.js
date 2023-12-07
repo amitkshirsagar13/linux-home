@@ -31,8 +31,6 @@ export const Monitor = GObject.registerClass({
         });
         this.name = name;
         this.uuid = uuid;
-        this._delegate = this;
-        this._signals = [];
 
         this.settings = getExtensionObject().getSettings(
             "io.k8s.framework.gnome-cloud-cicd"
@@ -41,9 +39,6 @@ export const Monitor = GObject.registerClass({
         let hbox = new St.BoxLayout();
         this.add_child(hbox);
         this.box = hbox;
-        this.meter = null;
-        this.usage = null;
-        this.activityBox = null;
 
         this._minHPadding = this._natHPadding = 0.0;
 
@@ -113,33 +108,6 @@ export const Monitor = GObject.registerClass({
         console.error('Must override Monitor.refresh()');
     }
 
-    _onOpenStateChanged(menu, open) {
-        if (open) {
-            this.add_style_pseudo_class('active');
-        } else {
-            this.remove_style_pseudo_class('active');
-        }
-
-        // Setting the max-height won't do any good if the minimum height of the
-        // menu is higher then the screen; it's useful if part of the menu is
-        // scrollable so the minimum height is smaller than the natural height
-        let workArea = Main.layoutManager.getWorkAreaForMonitor(Main.layoutManager.primaryIndex);
-        let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-        let verticalMargins = this.menu.actor.margin_top + this.menu.actor.margin_bottom;
-
-        // The workarea and margin dimensions are in physical pixels, but CSS
-        // measures are in logical pixels, so make sure to consider the scale
-        // factor when computing max-height
-        let maxHeight = Math.round((workArea.height - verticalMargins) / scaleFactor);
-        this.menu.actor.style = `max-height: ${maxHeight}px;`;
-    }
-
-    _onStyleChanged(actor) {
-        let themeNode = actor.get_theme_node();
-
-        this._minHPadding = themeNode.get_length('-minimum-hpadding');
-        this._natHPadding = themeNode.get_length('-natural-hpadding');
-    }
     _onMenuKeyPress(actor, event) {
         if (global.focus_manager.navigate_from_event(event)) {
             return Clutter.EVENT_STOP;
@@ -256,7 +224,6 @@ export const Monitor = GObject.registerClass({
 
         child.allocate(childBox);
     }
-
 
     destroy() {
         if (this.animationTimer !== 0) {
