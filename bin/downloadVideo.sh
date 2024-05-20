@@ -1,4 +1,5 @@
 #!/bin/sh
+# */15  * * * * ~/bin/downloadVideo.sh > /dev/null 2>&1
 
 lockFile=~/Videos/video.lock;
 
