@@ -1,12 +1,7 @@
-
-Amit Kshirsagar <amit.kshirsagar.13@gmail.com>
-5:05 PM (4 hours ago)
-to me
-
 #!/bin/bash
 
 # Define the input file containing the URLs, folders, and filenames
-INPUT_FILE="dif.txt"
+INPUT_FILE="$HOME/Videos/dif.txt"
 
 # Check if the input file exists
 if [ ! -f "$INPUT_FILE" ]; then
@@ -48,14 +43,14 @@ while IFS='|' read -r url foldername filename || [ -n "$url" ]; do
     elif [[ "$url" == *facebook.com* ]]; then
         PLATFORM_DIR="facebook"
     else
-        PLATFORM_DIR="downloads"
+        PLATFORM_DIR="/media/data/xos/actresses"
     fi
 
     # Construct the final target directory tree
     if [[ -n "$foldername" ]]; then
-        TARGET_DIR="downloads/$PLATFORM_DIR/$foldername"
+        TARGET_DIR="/media/data/xos/actresses/$foldername/$PLATFORM_DIR"
     else
-        TARGET_DIR="downloads/$PLATFORM_DIR"
+        TARGET_DIR="/media/data/xos/actresses/$PLATFORM_DIR"
     fi
 
     # Create the directory structure dynamically
@@ -81,7 +76,7 @@ while IFS='|' read -r url foldername filename || [ -n "$url" ]; do
     echo "--------------------------------------------------------"
 
     # Execute yt-dlp with MP4 format constraints and thumbnail embedding
-    ./yt-dlp \
+    yt-dlp \
         --cookies ./cookies.txt \
         -f "bv*[ext=mp4]+ba*[ext=m4a]/b[ext=mp4]" \
         --merge-output-format mp4 \
@@ -100,6 +95,8 @@ while IFS='|' read -r url foldername filename || [ -n "$url" ]; do
 
     # Brief pause to respect rate limits
     sleep 3
+
+    notify-send "Download Completed" "Song '$filename' downloaded and moved to $TARGET_PATH." 2>/dev/null || true
 
 done < "$INPUT_FILE"
 
