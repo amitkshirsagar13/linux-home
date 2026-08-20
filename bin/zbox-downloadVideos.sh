@@ -47,7 +47,7 @@ resolve_dlang() {
     case "$lang" in
         hindi)                          echo "Hindi"   ;;
         marathi)                        echo "Marathi" ;;
-        telugu|tamil|kannada|malyalam|malayalam) echo "South"   ;;
+        south|telugu|tamil|kannada|malyalam|malayalam) echo "South"   ;;
         bhojpuri)                       echo "Bhojpuri" ;;
         english)                        echo "English" ;;
         *)                              echo "Hindi"   ;;   # sensible default
