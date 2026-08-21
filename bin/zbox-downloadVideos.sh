@@ -39,6 +39,35 @@ release_lock() {
 }
 
 # ─────────────────────────────────────────────
+#  Deduplication
+# ─────────────────────────────────────────────
+deduplicate_download_file() {
+    [ ! -f "$DOWNLOAD_FILE" ] && return 0
+
+    local dedup_tmp
+    dedup_tmp=$(mktemp -p "$TMP_DIR")
+
+    # Removes duplicate data lines while retaining comments and line order
+    awk '
+        /^[[:space:]]*#/ || /^[[:space:]]*$/ {
+            print; next
+        }
+        {
+            # Normalize whitespace around fields for reliable duplicate checks
+            split($0, fields, "|")
+            key = ""
+            for (i=1; i<=length(fields); i++) {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", fields[i])
+                key = key (i > 1 ? "|" : "") fields[i]
+            }
+            if (!seen[key]++) {
+                print
+            }
+        }
+    ' "$DOWNLOAD_FILE" > "$dedup_tmp" && mv "$dedup_tmp" "$DOWNLOAD_FILE"
+}
+
+# ─────────────────────────────────────────────
 #  Map LANG → DLANG  (case-insensitive)
 # ─────────────────────────────────────────────
 resolve_dlang() {
@@ -171,7 +200,7 @@ download_entry() {
     resolution=$(resolve_resolution "$vformat")
     move_location="$SONGS_DIR/$dlang/$resolution/$actress"
 
-    log "  DLANG=$dlang  RESOLUTION=$resolution"
+    log "  DLANG=$dlang  RESOLUTEION=$resolution"
     log "  MOVE → $move_location"
 
     local vfmt_id afmt_id
@@ -296,10 +325,7 @@ export DISPLAY=:0
 #  Main
 # ─────────────────────────────────────────────
 main() {
-    # Acquire lock at the very start
     acquire_lock
-
-    # Ensure lock release and tracker cleanup under ALL exit conditions
     trap 'release_lock; rm -f "$TRACKER_FILE"' EXIT
 
     mkdir -p "$TMP_DIR"
@@ -314,6 +340,9 @@ main() {
         cat "$EXTERNAL_DOWNLOAD_FILE" >> "$DOWNLOAD_FILE"
         : > "$EXTERNAL_DOWNLOAD_FILE" # Truncate external file
     fi
+
+    # Deduplicate entries before starting main file checks and loop
+    deduplicate_download_file
 
     # Check if processing file exists and contains data
     if [ ! -s "$DOWNLOAD_FILE" ]; then
