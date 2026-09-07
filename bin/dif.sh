@@ -122,6 +122,8 @@ download_video() {
         --embed-thumbnail \
         -o "$target_path" \
         "$url"
+    # Return the exit code of yt-dlp
+    return $?
 }
 
 inject_metadata() {
@@ -141,6 +143,56 @@ inject_metadata() {
         || { log_warn "Metadata injection failed. Original file kept."; rm -f "$tmp"; }
 }
 
+# =============================================================================
+# Statistics
+# =============================================================================
+declare -A FOLDER_STATS
+CURRENT_FOLDER=""
+FOLDER_START_TIME=0
+OVERALL_SUCCESS=0
+OVERALL_FAIL=0
+
+finalize_folder() {
+    local folder="$1"
+    if [[ -z "$folder" ]]; then
+        return
+    fi
+    local end_time=$(date +%s)
+    local elapsed=$((end_time - FOLDER_START_TIME))
+    local stats="${FOLDER_STATS[$folder]}"
+    IFS=',' read -r s f t sz <<< "$stats"
+    t=$((t + elapsed))
+    FOLDER_STATS[$folder]="$s,$f,$t,$sz"
+}
+
+print_statistics() {
+    log_section "Statistics"
+
+    if [[ ${#FOLDER_STATS[@]} -eq 0 ]]; then
+        log_info "No folders processed."
+        return
+    fi
+
+    printf "%-30s | %10s | %6s | %10s | %10s\n" "Folder" "Downloaded" "Failed" "Time (s)" "Size (MB)"
+    printf "%s\n" "--------------------------------------------------------------------------------------------------"
+
+    local total_success=0 total_fail=0 total_time=0 total_size=0
+    for folder in "${!FOLDER_STATS[@]}"; do
+        IFS=',' read -r s f t sz <<< "${FOLDER_STATS[$folder]}"
+        total_success=$((total_success + s))
+        total_fail=$((total_fail + f))
+        total_time=$((total_time + t))
+        total_size=$(echo "$total_size + $sz" | bc)
+        printf "%-30s | %10d | %6d | %10d | %10.2f\n" "$folder" "$s" "$f" "$t" "$sz"
+    done
+
+    printf "%s\n" "--------------------------------------------------------------------------------------------------"
+    printf "%-30s | %10d | %6d | %10d | %10.2f\n" "TOTAL" "$total_success" "$total_fail" "$total_time" "$total_size"
+}
+
+# =============================================================================
+# Process Entry
+# =============================================================================
 process_entry() {
     local url="$1"
     local foldername="$2"
@@ -152,16 +204,57 @@ process_entry() {
     local target_path
     target_path="$(resolve_target_path "$foldername" "$filename" "$platform_dir")"
 
+    # ----- Statistics: folder grouping -----
+    local folder_key="${foldername:-default}"
+    if [[ "$folder_key" != "$CURRENT_FOLDER" ]]; then
+        # Finalise previous folder
+        finalize_folder "$CURRENT_FOLDER"
+        # Start new folder
+        CURRENT_FOLDER="$folder_key"
+        FOLDER_START_TIME=$(date +%s)
+        if [[ -z "${FOLDER_STATS[$CURRENT_FOLDER]}" ]]; then
+            FOLDER_STATS[$CURRENT_FOLDER]="0,0,0,0"
+        fi
+    fi
+    # ---------------------------------------
+
     log_section "Downloading"
     log_info "URL:      $url"
     log_info "Folder:   ${foldername:-<none>}"
     log_info "Platform: $platform_dir"
     log_info "Target:   $target_path"
 
-    download_video "$url" "$target_path"
-    inject_metadata "$url" "$target_path"
+    # Perform download
+    local success=0
+    if download_video "$url" "$target_path"; then
+        success=1
+        # Get file size in MB
+        local size_bytes=$(stat -c%s "$target_path" 2>/dev/null || echo 0)
+        local size_mb=$(echo "scale=2; $size_bytes / 1048576" | bc 2>/dev/null || echo 0)
+        log_info "Download succeeded, size: ${size_mb} MB"
 
-    notify "Download Completed" "File '$filename' saved to $target_path."
+        # Update folder stats (success)
+        local stats="${FOLDER_STATS[$CURRENT_FOLDER]}"
+        IFS=',' read -r s f t sz <<< "$stats"
+        s=$((s + 1))
+        sz=$(echo "$sz + $size_mb" | bc)
+        FOLDER_STATS[$CURRENT_FOLDER]="$s,$f,$t,$sz"
+        OVERALL_SUCCESS=$((OVERALL_SUCCESS + 1))
+
+        # Inject metadata (non‑critical, ignore failure)
+        inject_metadata "$url" "$target_path"
+    else
+        success=0
+        log_warn "Download failed for $url"
+        # Update folder stats (failure)
+        local stats="${FOLDER_STATS[$CURRENT_FOLDER]}"
+        IFS=',' read -r s f t sz <<< "$stats"
+        f=$((f + 1))
+        FOLDER_STATS[$CURRENT_FOLDER]="$s,$f,$t,$sz"
+        OVERALL_FAIL=$((OVERALL_FAIL + 1))
+    fi
+
+    notify "Download ${success?Completed?Failed}" "File '$filename' -> $target_path"
     sleep "$SLEEP_BETWEEN_DOWNLOADS"
 }
 
@@ -172,7 +265,6 @@ parse_and_process() {
     local prev_foldername=""
     local prev_filename=""
     local line_num=0
-    local success=0
     local skipped=0
 
     while IFS='|' read -r url foldername filename || [[ -n "$url" ]]; do
@@ -197,17 +289,24 @@ parse_and_process() {
         fi
 
         process_entry "$url" "$foldername" "$filename"
-        ((success++))
 
         prev_foldername="$foldername"
         prev_filename="$filename"
 
     done < "$INPUT_FILE"
 
+    # Finalize the last folder
+    finalize_folder "$CURRENT_FOLDER"
+
     log_section "Summary"
-    log_info "Processed: $((success + skipped)) entries"
-    log_info "Downloaded: $success"
+    local total_processed=$((OVERALL_SUCCESS + OVERALL_FAIL))
+    log_info "Processed: $((total_processed + skipped)) entries"
+    log_info "Downloaded: $OVERALL_SUCCESS"
+    log_info "Failed:    $OVERALL_FAIL"
     log_info "Skipped:    $skipped"
+
+    # Print detailed statistics
+    print_statistics
 }
 
 # =============================================================================
@@ -224,6 +323,10 @@ validate_inputs() {
     fi
     if ! command -v ffmpeg &>/dev/null; then
         log_error "ffmpeg is not installed or not in PATH."
+        return 1
+    fi
+    if ! command -v bc &>/dev/null; then
+        log_error "bc is required for floating‑point arithmetic."
         return 1
     fi
 }
