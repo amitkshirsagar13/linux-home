@@ -2,6 +2,30 @@
 # */15  * * * * ~/bin/downloadVideo.sh > /dev/null 2>&1
 
 # ─────────────────────────────────────────────
+#  Debug / Verbose & Cookie Flag CLI Support
+# ─────────────────────────────────────────────
+DEBUG=false
+COOKIES=true
+WRITE_COOKIES_ONLY=false
+
+for arg in "$@"; do
+    case "$arg" in
+        -d|--debug)
+            DEBUG=true
+            shift
+            ;;
+        -n|--no-cookies)
+            COOKIES=false
+            shift
+            ;;
+        -c|--write-cookies)
+            WRITE_COOKIES_ONLY=true
+            shift
+            ;;
+    esac
+done
+
+# ─────────────────────────────────────────────
 #  Paths & globals
 # ─────────────────────────────────────────────
 LOCK_FILE=~/Videos/video.lock
@@ -9,17 +33,139 @@ LOG_FILE=~/Videos/video_download.log
 DOWNLOAD_FILE=~/Videos/songs.txt
 DOWNLOAD_FILE_TMP=~/Videos/songs.txt.tmp
 BACK_FILE=~/Videos/back.songs.txt
-SONGS_DIR=/media/zbox/Crucial-X6/ShareMe/media/songs/target
+
+# Media mount differs by host: on "zbox" itself the drive is local at
+# /media/data; everywhere else it's reached via the network share /media/zbox.
+if [ "$(hostname)" = "zbox" ]; then
+    MEDIA_BASE=/media/data
+else
+    MEDIA_BASE=/media/zbox
+fi
+
+SONGS_DIR="$MEDIA_BASE/Crucial-X6/ShareMe/media/songs/target"
+EXTERNAL_DOWNLOAD_FILE="$MEDIA_BASE/Crucial-X6/ShareMe/media/songs/target/download.txt"
+COOKIE_TARGET="$MEDIA_BASE/Crucial-X6/ShareMe/media/songs/target/cookies-zbox.txt"
 TMP_DIR=~/tmp
 TRACKER_FILE=$(mktemp -p "$TMP_DIR")
 
-YT_DLP=~/bin/yt-dlp
+# Thumbnail generation settings
+THUMB_WIDTH=256
+THUMB_HEIGHT=256
+THUMB_SEEK="00:00:03"
+
+API_URL="http://minis.local:2345/api/ytdlp/update-status"
+
+YT_DLP=/usr/local/bin/yt-dlp
+
+# ─────────────────────────────────────────────
+#  Session env (MUST be set before any early-exit path, e.g. --write-cookies,
+#  since gnome-keyring cookie extraction needs a live D-Bus session to unlock)
+# ─────────────────────────────────────────────
+USER_ID=$(id -u)
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus"
+export DISPLAY=:0
 
 # ─────────────────────────────────────────────
 #  Logging
 # ─────────────────────────────────────────────
 log() {
     echo "$*" | tee -a "$LOG_FILE"
+}
+
+# Send debug messages to STDERR so subshell outputs remain clean
+log_debug() {
+    if [ "$DEBUG" = true ]; then
+        echo "[DEBUG] $*" | tee -a "$LOG_FILE" >&2
+    fi
+}
+
+# ─────────────────────────────────────────────
+#  Cookie Writing Operation (--write-cookies)
+# ─────────────────────────────────────────────
+export_cookies() {
+    log "[INFO] Exporting fresh cookies from Chrome to $COOKIE_TARGET..."
+    mkdir -p "$(dirname "$COOKIE_TARGET")"
+
+    # Check if executable exists first
+    if [ ! -x "$YT_DLP" ]; then
+        log "[ERROR] yt-dlp executable not found at '$YT_DLP'"
+        return 127
+    fi
+
+    # Use --cookies to specify the output destination file.
+    # Output is logged (not discarded) so real failures are diagnosable later,
+    # e.g. under cron where there's no interactive terminal to see it.
+    "$YT_DLP" --cookies-from-browser chrome+gnomekeyring \
+              --cookies "$COOKIE_TARGET" \
+              --skip-download "https://www.youtube.com/watch?v=dQw4w9WgXcQ" >>"$LOG_FILE" 2>&1
+
+    local exit_code=$?
+    if [ $exit_code -eq 0 ] && [ -s "$COOKIE_TARGET" ]; then
+        log "[SUCCESS] Cookies successfully written to $COOKIE_TARGET"
+        return 0
+    else
+        log "[ERROR] Failed to export cookies to $COOKIE_TARGET (Exit code: $exit_code)"
+        return 1
+    fi
+}
+
+# If user passed -c or --write-cookies, export cookies and exit immediately
+if [ "$WRITE_COOKIES_ONLY" = true ]; then
+    export_cookies
+    exit $?
+fi
+
+# Prepare common cookie arguments array for download runs
+COOKIE_ARGS=()
+if [ "$COOKIES" = true ]; then
+    COOKIE_ARGS=(--cookies-from-browser chrome --cookies "$COOKIE_TARGET")
+fi
+
+# Cookie test query
+"$YT_DLP" "${COOKIE_ARGS[@]}" --skip-download "https://www.youtube.com/watch?v=dQw4w9WgXcQ" >/dev/null 2>&1
+
+# ─────────────────────────────────────────────
+#  Update Status API Call
+# ─────────────────────────────────────────────
+# Args:
+#    $1 entry_string   (required)
+#    $2 status         (required)
+#    $3 size_bytes     (optional - integer, size on disk of the moved file)
+#    $4 thumbnail_b64  (optional - base64-encoded 256x256 jpeg)
+update_status() {
+    local entry_string="$1"
+    local status="$2"
+    local size_bytes="$3"
+    local thumbnail_b64="$4"
+
+    local payload
+    payload=$(jq -n \
+        --arg entry "$entry_string" \
+        --arg status "$status" \
+        --argjson size "${size_bytes:-null}" \
+        --arg thumb "$thumbnail_b64" \
+        '{entry: $entry, status: $status}
+         + (if $size != null then {size: $size} else {} end)
+         + (if $thumb != "" then {thumbnail: $thumb} else {} end)')
+
+    local response
+    response=$(curl -s -X 'POST' \
+      "$API_URL" \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -d "$payload")
+
+    local res_status res_entry
+    res_status=$(echo "$response" | jq -r '.status // empty')
+    res_entry=$(echo "$response" | jq -r '.entry // empty')
+
+    if [[ "$res_status" == "success" ]]; then
+        local log_message="[INFO] Updated status for entry: ${res_entry:-$entry_string} → $status"
+        echo -e "\n$log_message" | tee -a "$LOG_FILE"
+    else
+        local log_message="[ERROR] Failed to update status for entry: $entry_string. Response: $response"
+        echo -e "\n$log_message" | tee -a "$LOG_FILE"
+    fi
 }
 
 # ─────────────────────────────────────────────
@@ -38,18 +184,45 @@ release_lock() {
 }
 
 # ─────────────────────────────────────────────
-#  Map LANG → DLANG  (case-insensitive)
+#  Deduplication
+# ─────────────────────────────────────────────
+deduplicate_download_file() {
+    [ ! -f "$DOWNLOAD_FILE" ] && return 0
+
+    local dedup_tmp
+    dedup_tmp=$(mktemp -p "$TMP_DIR")
+
+    awk '
+        /^[[:space:]]*#/ || /^[[:space:]]*$/ {
+            print; next
+        }
+        {
+            split($0, fields, "|")
+            key = ""
+            for (i=1; i<=length(fields); i++) {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", fields[i])
+                key = key (i > 1 ? "|" : "") fields[i]
+            }
+            if (!seen[key]++) {
+                print
+            }
+        }
+    ' "$DOWNLOAD_FILE" > "$dedup_tmp" && mv "$dedup_tmp" "$DOWNLOAD_FILE"
+}
+
+# ─────────────────────────────────────────────
+#  Map LANG → DLANG
 # ─────────────────────────────────────────────
 resolve_dlang() {
     local lang
     lang=$(echo "$1" | tr '[:upper:]' '[:lower:]')
     case "$lang" in
-        hindi)                          echo "Hindi"   ;;
-        marathi)                        echo "Marathi" ;;
-        telugu|tamil|kannada|malyalam|malayalam) echo "South"   ;;
-        bhojpuri)                       echo "Bhojpuri" ;;
-        english)                        echo "English" ;;
-        *)                              echo "Hindi"   ;;   # sensible default
+        hindi)                                         echo "Hindi"   ;;
+        marathi)                                       echo "Marathi" ;;
+        south|telugu|tamil|kannada|malyalam|malayalam) echo "South"   ;;
+        bhojpuri)                                      echo "Bhojpuri" ;;
+        english)                                       echo "English" ;;
+        *)                                             echo "Hindi"   ;;
     esac
 }
 
@@ -66,26 +239,22 @@ resolve_resolution() {
 
 # ─────────────────────────────────────────────
 #  Query available formats and return the best
-#  format-id for the requested resolution.
-#
-#  Strategy:
-#    1. Collect all video-only lines from -F output.
-#    2. Keep rows whose height == VFORMAT; if none,
-#       keep the row whose height is closest.
-#    3. Among candidates pick the one with the
-#       smallest file size (filesize or filesize_approx).
-#
-#  Prints a single yt-dlp format id string, e.g. "137"
 # ─────────────────────────────────────────────
 select_video_format() {
     local url="$1"
     local vformat="$2"
 
-    # Fetch format list (tab-separated machine-readable output)
-    # Columns: format_id ext resolution note filesize filesize_approx vcodec acodec
+    log_debug "Fetching format list for URL: $url"
+
     local fmt_list
-    fmt_list=$("$YT_DLP" --cookies-from-browser chrome --js-runtimes node \
-        -F "$url" 2>/dev/null)
+    if [ "$DEBUG" = true ]; then
+        fmt_list=$("$YT_DLP" "${COOKIE_ARGS[@]}" --js-runtimes node -F "$url")
+        log_debug "--- Raw Format List Output ---"
+        log_debug "$fmt_list"
+        log_debug "------------------------------"
+    else
+        fmt_list=$("$YT_DLP" "${COOKIE_ARGS[@]}" --js-runtimes node -F "$url" 2>/dev/null)
+    fi
 
     if [ -z "$fmt_list" ]; then
         log "  [WARN] Could not retrieve format list for: $url"
@@ -93,35 +262,25 @@ select_video_format() {
         return 1
     fi
 
-    # Parse: lines that have a numeric height (video-only or video+audio)
-    # We look for lines containing the target height (e.g. "1080p", "720p", "480p")
-    # yt-dlp -F output example:
-    #   137  mp4   1920x1080  1080p 3108k , avc1.640028, 30fps, video only, 120.23MiB
-    #   251  webm  audio only opus  128k , opus stereo, 3.45MiB
-
-    # Build a simple scored list: id|height|size
     local candidates=""
     while IFS= read -r line; do
-        # Skip header / audio-only / storyboard lines
         echo "$line" | grep -qiE '(audio only|storyboard|images)' && continue
         [[ "$line" =~ ^[0-9] ]] || continue
 
         local id height size_mb
         id=$(echo "$line" | awk '{print $1}')
 
-        # Extract height from resolution field like 1920x1080 or from label like 1080p
         height=$(echo "$line" | grep -oP '\b([0-9]+)(?=p\b)' | head -1)
         [ -z "$height" ] && height=$(echo "$line" | grep -oP '(?<=x)[0-9]+' | head -1)
-        [ -z "$height" ] && continue   # can't determine height, skip
+        [ -z "$height" ] && continue
 
-        # Extract size: prefer explicit MiB, then KiB, then approx (~)
         size_mb=$(echo "$line" | grep -oP '[~]?\s*[0-9]+(\.[0-9]+)?\s*MiB' | grep -oP '[0-9]+(\.[0-9]+)?' | head -1)
         if [ -z "$size_mb" ]; then
             local size_kib
             size_kib=$(echo "$line" | grep -oP '[~]?\s*[0-9]+(\.[0-9]+)?\s*KiB' | grep -oP '[0-9]+(\.[0-9]+)?' | head -1)
             [ -n "$size_kib" ] && size_mb=$(echo "scale=3; $size_kib/1024" | bc)
         fi
-        [ -z "$size_mb" ] && size_mb=999999   # unknown size → sort last
+        [ -z "$size_mb" ] && size_mb=999999
 
         candidates="${candidates}${id}|${height}|${size_mb}\n"
     done <<< "$fmt_list"
@@ -132,15 +291,18 @@ select_video_format() {
         return 1
     fi
 
-    # Find exact height matches first
+    log_debug "Parsed candidates (format_id|height|size_mb):"
+    log_debug "$(printf "%b" "$candidates")"
+
     local exact
     exact=$(printf "%b" "$candidates" | awk -F'|' -v h="$vformat" '$2==h {print}')
 
     local pool
     if [ -n "$exact" ]; then
+        log_debug "Found exact match for height: ${vformat}p"
         pool="$exact"
     else
-        # Find the closest height (minimise |height - vformat|)
+        log_debug "No exact match for ${vformat}p. Finding closest match..."
         local best_diff=999999 best_height=""
         while IFS='|' read -r id height size; do
             local diff=$(( height > vformat ? height - vformat : vformat - height ))
@@ -149,38 +311,98 @@ select_video_format() {
                 best_height=$height
             fi
         done < <(printf "%b" "$candidates" | awk -F'|' '{print}')
+        log_debug "Closest height identified: ${best_height}p"
         pool=$(printf "%b" "$candidates" | awk -F'|' -v h="$best_height" '$2==h {print}')
     fi
 
-    # From the pool, pick the entry with the smallest file size
     local best_id
     best_id=$(printf "%b" "$pool" | awk -F'|' 'BEGIN{min=999999;id=""} {if($3<min){min=$3;id=$1}} END{print id}')
 
+    log_debug "Selected video format ID: $best_id"
     echo "$best_id"
 }
 
 # ─────────────────────────────────────────────
-#  Select best audio-only format (highest quality
-#  audio, smallest size among tied quality).
+#  Select best audio-only format
 # ─────────────────────────────────────────────
 select_audio_format() {
     local url="$1"
     local fmt_list
-    fmt_list=$("$YT_DLP" --cookies-from-browser chrome --js-runtimes node \
-        -F "$url" 2>/dev/null)
 
-    # Prefer opus/m4a audio-only; fall back to "bestaudio"
+    if [ "$DEBUG" = true ]; then
+        fmt_list=$("$YT_DLP" "${COOKIE_ARGS[@]}" --js-runtimes node -F "$url")
+    else
+        fmt_list=$("$YT_DLP" "${COOKIE_ARGS[@]}" --js-runtimes node -F "$url" 2>/dev/null)
+    fi
+
     local best_id
     best_id=$(echo "$fmt_list" | awk '
         /audio only/ && /opus|m4a/ {
-            # extract id (first column) and size
             id=$1
-            # pick first match (yt-dlp lists best first for audio)
             if (!found) { found=1; best=id }
         }
         END { print (best ? best : "bestaudio") }
     ')
+
+    log_debug "Selected audio format ID: $best_id"
     echo "$best_id"
+}
+
+# ─────────────────────────────────────────────
+#  Find attached picture stream index
+# ─────────────────────────────────────────────
+find_attached_pic_stream() {
+    local video_file="$1"
+
+    ffprobe -v error -select_streams v \
+        -show_entries stream=index:stream_disposition=attached_pic \
+        -of csv=p=0 "$video_file" 2>/dev/null \
+        | awk -F',' '$2==1 {print $1; exit}'
+}
+
+# ─────────────────────────────────────────────
+#  Extract and encode thumbnail
+# ─────────────────────────────────────────────
+generate_thumbnail_b64() {
+    local video_file="$1"
+
+    if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+        log_debug "ffmpeg/ffprobe not found; skipping thumbnail extraction."
+        echo ""
+        return 1
+    fi
+
+    local thumb_file
+    thumb_file=$(mktemp -p "$TMP_DIR" --suffix=.jpg)
+
+    local pic_stream
+    pic_stream=$(find_attached_pic_stream "$video_file")
+
+    if [ -n "$pic_stream" ]; then
+        log_debug "Found embedded thumbnail at stream index $pic_stream in: $video_file"
+        ffmpeg -y -i "$video_file" -map "0:${pic_stream}" \
+            -vf "scale=${THUMB_WIDTH}:${THUMB_HEIGHT}:force_original_aspect_ratio=increase,crop=${THUMB_WIDTH}:${THUMB_HEIGHT}" \
+            -frames:v 1 "$thumb_file" >/dev/null 2>&1
+    else
+        log_debug "No embedded thumbnail found in $video_file; falling back to frame grab."
+        ffmpeg -y -ss "$THUMB_SEEK" -i "$video_file" -vframes 1 \
+            -vf "scale=${THUMB_WIDTH}:${THUMB_HEIGHT}:force_original_aspect_ratio=increase,crop=${THUMB_WIDTH}:${THUMB_HEIGHT}" \
+            "$thumb_file" >/dev/null 2>&1
+    fi
+
+    if [ ! -s "$thumb_file" ]; then
+        log "  [WARN] Failed to obtain thumbnail for: $video_file"
+        rm -f "$thumb_file"
+        echo ""
+        return 1
+    fi
+
+    local b64
+    b64=$(base64 -w 0 "$thumb_file")
+
+    rm -f "$thumb_file"
+
+    echo "$b64"
 }
 
 # ─────────────────────────────────────────────
@@ -188,41 +410,45 @@ select_audio_format() {
 # ─────────────────────────────────────────────
 download_entry() {
     local url="$1" vformat="$2" lang="$3" actress="$4"
+    local entry_string="${url}|${vformat}|${lang}|${actress}"
 
     log ""
     log "  URL:     $url"
     log "  VFORMAT: $vformat  |  LANG: $lang  |  ACTRESS: $actress"
 
-    # Resolve destination labels
+    update_status "$entry_string" "Downloading"
+
     local dlang resolution move_location
     dlang=$(resolve_dlang "$lang")
     resolution=$(resolve_resolution "$vformat")
     move_location="$SONGS_DIR/$dlang/$resolution/$actress"
 
-    log "  DLANG=$dlang  RESOLUTION=$resolution"
+    log "  DLANG=$dlang  RESOLUTEION=$resolution"
     log "  MOVE → $move_location"
 
-    # Select formats
     local vfmt_id afmt_id
     vfmt_id=$(select_video_format "$url" "$vformat")
     afmt_id=$(select_audio_format  "$url")
 
     if [ -z "$vfmt_id" ]; then
         log "  [ERROR] Could not determine video format id. Skipping."
+        update_status "$entry_string" "Failed"
         return 1
     fi
 
     log "  Selected: video=$vfmt_id  audio=$afmt_id"
 
-    # Clear tracker
     > "$TRACKER_FILE"
 
-    # Download
-    "$YT_DLP" --cookies-from-browser chrome --js-runtimes node \
+    local extra_ytdlp_args=()
+    if [ "$DEBUG" = true ]; then
+        extra_ytdlp_args+=("-v")
+    fi
+
+    "$YT_DLP" "${COOKIE_ARGS[@]}" "${extra_ytdlp_args[@]}" \
+        --js-runtimes node \
         -f "${vfmt_id}+${afmt_id}" \
         --embed-thumbnail \
-        --downloader aria2c \
-        --downloader-args "aria2c:-x 16 -s 16 -k 1M" \
         --progress-delta 0.5 \
         --progress-template 'download: ━► %(progress._percent_str)s of %(progress._total_bytes_str,progress._total_bytes_estimate_str)s | Speed: %(progress._speed_str)s | ETA: %(progress._eta_str)s' \
         --merge-output-format mp4 -c \
@@ -233,58 +459,66 @@ download_entry() {
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
         log "  [ERROR] yt-dlp exited with code $exit_code"
+        update_status "$entry_string" "Failed"
         return 1
     fi
 
-    # Move to destination
     local downloaded_file
     downloaded_file=$(cat "$TRACKER_FILE" 2>/dev/null)
     if [ -z "$downloaded_file" ] || [ ! -f "$downloaded_file" ]; then
         log "  [ERROR] Tracker file empty or downloaded file not found."
+        update_status "$entry_string" "Failed"
         return 1
     fi
 
     mkdir -p "$move_location"
     mv "$downloaded_file" "$move_location/"
-    local moved_name
+    local moved_name moved_path
     moved_name=$(basename "$downloaded_file")
+    moved_path="$move_location/$moved_name"
 
     log "  [OK] Moved: $moved_name → $move_location/"
     notify-send "Download Completed" "Song '$moved_name' downloaded and moved to $move_location." 2>/dev/null || true
+
+    local file_size
+    file_size=$(du -B1 --apparent-size=off "$moved_path" 2>/dev/null | awk '{print $1}')
+    [ -z "$file_size" ] && file_size=$(stat -c%s "$moved_path" 2>/dev/null)
+    log_debug "Size on disk for $moved_name: ${file_size:-unknown} bytes"
+
+    local thumb_b64
+    thumb_b64=$(generate_thumbnail_b64 "$moved_path")
+    log_debug "Thumbnail generated: $([ -n "$thumb_b64" ] && echo yes || echo no)"
+
+    update_status "$entry_string" "Completed" "$file_size" "$thumb_b64"
+
+    unset thumb_b64
 
     return 0
 }
 
 # ─────────────────────────────────────────────
 #  Parse & process the download file
-#  Format: URL|VFORMAT|LANG|ACTRESS
-#  Missing fields inherit from the previous line.
 # ─────────────────────────────────────────────
 process_download_file() {
     local prev_vformat="" prev_lang="" prev_actress=""
 
     while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-        # Strip leading/trailing whitespace and skip blank/comment lines
         local line
         line=$(echo "$raw_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         [[ -z "$line" || "$line" == \#* ]] && continue
 
-        # Split on '|'
         local url vformat lang actress
         IFS='|' read -r url vformat lang actress <<< "$line"
 
-        # Trim each field
         url=$(echo     "$url"     | xargs)
         vformat=$(echo "$vformat" | xargs)
         lang=$(echo    "$lang"    | xargs)
         actress=$(echo "$actress" | xargs)
 
-        # Inherit missing fields from previous entry
         [ -z "$vformat" ] && vformat="$prev_vformat"
         [ -z "$lang"    ] && lang="$prev_lang"
         [ -z "$actress" ] && actress="$prev_actress"
 
-        # Validate mandatory fields
         if [ -z "$url" ]; then
             log "  [SKIP] Empty URL on line: $raw_line"
             continue
@@ -294,7 +528,6 @@ process_download_file() {
             continue
         fi
 
-        # Save as previous for next iteration
         prev_vformat="$vformat"
         prev_lang="$lang"
         prev_actress="$actress"
@@ -330,43 +563,44 @@ backup_and_rotate() {
     fi
 }
 
-USER_ID=$(id -u)
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$USER_ID/bus"
-export DISPLAY=:0
-
 # ─────────────────────────────────────────────
 #  Main
 # ─────────────────────────────────────────────
 main() {
+    acquire_lock
+    trap 'release_lock; rm -f "$TRACKER_FILE"' EXIT
+
     mkdir -p "$TMP_DIR"
 
     log "================================================================================================"
     log "File processing started at $(date +"%Y-%m-%d %T")"
+    log_debug "Debug mode enabled."
+    log_debug "Cookies enabled: $COOKIES"
 
+    if [ -s "$EXTERNAL_DOWNLOAD_FILE" ]; then
+        log "New entries found in $EXTERNAL_DOWNLOAD_FILE. Syncing to $DOWNLOAD_FILE..."
+        mkdir -p "$(dirname "$DOWNLOAD_FILE")"
+        cat "$EXTERNAL_DOWNLOAD_FILE" >> "$DOWNLOAD_FILE"
+        : > "$EXTERNAL_DOWNLOAD_FILE"
+    fi
 
+    deduplicate_download_file
 
-    if [ ! -f "$DOWNLOAD_FILE" ]; then
-        log "No file $DOWNLOAD_FILE for Processing"
+    if [ ! -s "$DOWNLOAD_FILE" ]; then
+        log "No file or entries in $DOWNLOAD_FILE for Processing."
         log "File processing completed at $(date +"%Y-%m-%d %T")"
         log "================================================================================================"
-        rm -f "$TRACKER_FILE"
         exit 0
     fi
 
-    acquire_lock
-    
     notify-send "Video Download Started" "Processing video downloads..." 2>/dev/null || true
-    
+
     process_download_file
 
     backup_and_rotate
-
-    release_lock
-
-    rm -f "$TRACKER_FILE"
 
     log "File processing completed at $(date +"%Y-%m-%d %T")"
     log "================================================================================================"
 }
 
-main
+main "$@"
