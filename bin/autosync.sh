@@ -3,6 +3,40 @@
 #
 # Usage: autosync.sh [--full]    (--full forces a full --delete sync at startup)
 
+# # /etc/systemd/system/autosync.service
+# [Unit]
+# Description=Auto-sync local folder to remote server (Optimized)
+# After=network-online.target
+# Wants=network-online.target
+
+# [Service]
+# Type=simple
+# User=kira
+# Group=kira
+# Environment="HOME=/home/kira"
+
+# # Main service
+# ExecStart=/usr/local/bin/autosync.sh
+
+# # Restart on failure
+# Restart=on-failure
+# RestartSec=30
+
+# # Logging
+# StandardOutput=journal
+# StandardError=journal
+# SyslogIdentifier=autosync
+
+# # Security settings
+# PrivateTmp=yes
+# NoNewPrivileges=true
+# ProtectSystem=strict
+# ProtectHome=read-only
+# ReadWritePaths=/media/data/xos/actresses/ /var/log
+
+# [Install]
+# WantedBy=multi-user.target
+
 # ---------------- Configuration ----------------
 LOCAL_DIR="/media/data/xos/actresses/"
 REMOTE_HOST="admn@192.168.12.111"
