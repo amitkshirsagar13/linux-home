@@ -3,40 +3,6 @@
 #
 # Usage: autosync.sh [--full]    (--full forces a full --delete sync at startup)
 
-# # /etc/systemd/system/autosync.service
-# [Unit]
-# Description=Auto-sync local folder to remote server (Optimized)
-# After=network-online.target
-# Wants=network-online.target
-
-# [Service]
-# Type=simple
-# User=kira
-# Group=kira
-# Environment="HOME=/home/kira"
-
-# # Main service
-# ExecStart=/usr/local/bin/autosync.sh
-
-# # Restart on failure
-# Restart=on-failure
-# RestartSec=30
-
-# # Logging
-# StandardOutput=journal
-# StandardError=journal
-# SyslogIdentifier=autosync
-
-# # Security settings
-# PrivateTmp=yes
-# NoNewPrivileges=true
-# ProtectSystem=strict
-# ProtectHome=read-only
-# ReadWritePaths=/media/data/xos/actresses/ /var/log
-
-# [Install]
-# WantedBy=multi-user.target
-
 # ---------------- Configuration ----------------
 LOCAL_DIR="/media/data/xos/actresses/"
 REMOTE_HOST="admn@192.168.12.111"
@@ -44,7 +10,7 @@ REMOTE_DIR="/media/data/storage/xos/x-linux/pics/acts/"
 SSH_KEY="/home/kira/.ssh/id_ed25519"
 BATCH_DELAY=5                              # seconds of quiet before syncing a batch
 LOG_FILE="/var/log/autosync.log"
-STATE_DIR="/var/lib/autosync"              # must be writable by the user running this
+STATE_DIR="${STATE_DIRECTORY:-/var/lib/autosync}"   # set by systemd via StateDirectory=
 FULL_SYNC_INTERVAL=$((7 * 24 * 3600))      # periodic safety full sync (catches offline deletes)
 # -------------------------------------------------
 
@@ -293,3 +259,40 @@ while read -r EVENT FILE; do
     log "Change: $EVENT -> $REL"
     date +%s > "$LAST_CHANGE_FILE"
 done
+
+# sudo vi /etc/systemd/system/autosync.service
+# ---
+# [Unit]
+# Description=Auto-sync local folder to remote server (Optimized)
+# After=network-online.target
+# Wants=network-online.target
+
+# [Service]
+# Type=simple
+# User=kira
+# Group=kira
+# Environment="HOME=/home/kira"
+
+# ExecStart=/usr/local/bin/autosync.sh
+
+# # systemd creates /var/lib/autosync owned by kira and keeps it writable
+# # (needed because ProtectSystem=strict makes /var/lib read-only)
+# StateDirectory=autosync
+
+# # Retry once a minute after a hard failure (e.g. remote unreachable)
+# Restart=on-failure
+# RestartSec=60
+
+# StandardOutput=journal
+# StandardError=journal
+# SyslogIdentifier=autosync
+
+# # Security settings
+# PrivateTmp=yes
+# NoNewPrivileges=true
+# ProtectSystem=strict
+# ProtectHome=read-only
+# ReadWritePaths=/media/data/xos/actresses/ /var/log /home/kira/.ssh
+
+# [Install]
+# WantedBy=multi-user.target
